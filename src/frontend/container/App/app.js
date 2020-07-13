@@ -1,0 +1,321 @@
+import React, { Component } from 'react';
+import { Route, Switch, withRouter, Redirect } from 'react-router-dom';
+import { Container, Grid } from 'semantic-ui-react'
+
+//import Header from '../../component/Header/Header';
+import Footer from '../../components/Footer/footer';
+import Home from '../../components/Home/home';
+//import Log from '../../component/Log/log';
+//import Account from '../../component/Account/account';
+//import Profile from '../../component/Profile/profile';
+//import Single from '../../component/Single/single';
+//import Animation from '../../component/Log/animation/animation';
+//import SocialShare from '../../component/SocialShare/SocialShare';
+//import ShowPage from '../../component/showpage/showpage';
+import HeaderNav from '../../components/Header/header';
+import News from '../../components/News/news'
+import Posting from '../../components/News/Posting/posting'
+import Admin from '../../components/Admin/admin'
+import Members from '../../components/Members/members'
+
+
+import './app.css';
+import members from '../../components/Members/members';
+
+class App extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            loaded: false,
+            loggedIn: false,
+            backDrop: false,
+            back: false,
+            accountId: '',
+
+            // News Posts
+            newsPostId: '',
+            newsPostDate: new Date().getTime(),
+            newsPostCategory: '',
+            newsPostBody: '',
+            newsPostPhotos: [],
+            newsPostAuthor: '',
+            newsPostTitle: '',
+            newsVerificationHash: '',
+            newsPosts: [],
+
+            // Consolidation Pages
+            allNewsPosts: [],
+
+            // Admin
+            user: '',
+            role: '',
+            roles: [],
+            members: [],
+        }
+        this.signedInFlow = this.signedInFlow.bind(this);
+        this.requestSignIn = this.requestSignIn.bind(this);
+    }
+
+    componentDidMount() {
+        let loggedIn = this.props.wallet.isSignedIn()
+        this.setState({
+            loggedIn: true
+        })
+        if (loggedIn) {
+            this.signedInFlow();
+        } else {
+            this.signedOutFlow();
+        }
+    }
+
+    signedOutFlow = () => {
+        this.setState({
+            loggedIn: false,
+            loaded: true,
+        });
+        window.localStorage.removeItem('enc_key:'+this.state.accountId+':'+'member')
+        window.localStorage.removeItem('enc_key:'+process.env.APPID+':'+'org')
+        window.localStorage.removeItem(process.env.APPID + ":" + process.env.THREADDB_IDENTITY_STRING)
+        window.localStorage.removeItem(process.env.APPID + ":" + process.env.THREADDB_USER_THREADID)
+        window.localStorage.removeItem(process.env.APPID + ":" + process.env.THREADDB_TOKEN_STRING)
+        return <Redirect to="/" />
+    }
+
+    async signedInFlow() {
+        const accountId = await this.props.wallet.getAccountId();
+        this.setState({
+            accountId: accountId
+        })
+
+        // fill news posts array
+        this.getAllNewsPostsByAllAuthors().then(res => {
+            console.log('news res', res);
+            this.setState({
+                newsPosts: res.newsPosts
+            });
+
+            if (res == null ) {
+                this.setState({
+                    loaded: true
+                });
+            } else {
+                this.setState({
+                    newsPosts: res.newsPosts,
+                    loaded: true
+                });
+            }
+        }).catch(err => {
+            console.log(err);
+        })
+
+        // fill members array
+        this.getAllMembers().then(res => {
+            console.log('member res', res);
+            this.setState({
+                members: res.members
+            });
+
+            if (res == null) {
+                this.setState({
+                    loaded: true
+                });
+            } else {
+                this.setState({
+                    members: res.members,
+                    loaded: true
+                });
+            }
+        }).catch(err => {
+            console.log(err);
+        })
+
+            
+            console.log('signed in accountid ', this.state.accountId)
+    }
+
+    getNewsPostsByAuthor = (author) => {
+        return this.props.contract.getNewsPosts({ author: author });
+    }
+
+    getAllNewsPostsByAllAuthors = () => {
+        return this.props.contract.getAllNewsPosts();
+    }
+    
+    getAllMembers = () => {
+        return this.props.contract.getAllMembers();
+    }
+
+    async requestSignIn() {
+        await this.props.wallet.requestSignIn(
+            process.env.CONTRACT_NAME,
+            process.env.APP_TITLE
+        )
+    }
+
+    requestSignOut = () => {
+        this.setState({ loaded: false })
+        this.props.wallet.signOut();
+        setTimeout(this.signedOutFlow, 2000);
+    }
+
+    handleChange = ({ name, value }) => {
+        this.setState({
+            [name]: value
+        })
+    }
+
+    handleDateChange = ({ name, value }) => {
+        this.setState({
+            [name]: value
+        })
+    }
+
+    backdropCancelHandler = () => {
+        this.setState({ backDrop: false })
+    }
+
+    backShowHandler = () => {
+        this.setState({ back: true })
+    }
+
+    backCancelHandler = () => {
+        this.setState({ back: false })
+    }
+
+    render() {
+        let { loggedIn, loaded, backDrop, back, accountId, user, role, roles,
+        newsPostId, newsPostAuthor, newsPostBody, newsPostCategory, newsPostTitle, newsPostPhotos, 
+        newsVerificationHash, newsPostDate, newsPosts, members } = this.state
+
+        let { contract, account } = this.props
+       
+        console.log('logged in', loggedIn)
+        return (
+           <Grid>
+                <HeaderNav
+                    login={loggedIn}
+                    loaded={loaded}
+                    requestSignIn={this.requestSignIn}
+                    requestSignOut={this.requestSignOut}
+                    accountId={accountId}
+                    handleChange={this.handleChange} 
+                    account={account} 
+                />
+
+                <Switch>
+                    <Route
+                    exact
+                    path='/'
+                    render={() => 
+                        <Home
+                            login={loggedIn}
+                            loaded={loaded}
+                            newsPosts={newsPosts}
+                            accountId={accountId}
+
+                        />
+                    }
+                    />
+
+                    <Route
+                    exact
+                    path='/submit-news'
+                    render={() => 
+                        <News
+                            login={loggedIn}
+                            load={loaded}
+                            accountId={accountId}
+                            handleChange={this.handleChange}
+                            handleDateChange={this.handleDateChange}
+                            newsPostId={newsPostId}
+                            newsPostCategory={newsPostCategory}
+                            newsPostAuthor={newsPostAuthor}
+                            newsPostDate={newsPostDate}
+                            newsPostBody={newsPostBody}
+                            newsPostPhotos={newsPostPhotos}
+                            newsPostTitle={newsPostTitle}
+                            newsVerificationHash={newsVerificationHash}
+                        />
+                    }
+                    />
+
+                    <Route
+                    exact
+                    path='/posting'
+                    render={() => 
+                        <Posting
+                            login={loggedIn}
+                            loaded={loaded}
+                            accountId={accountId}
+                            handleChange={this.handleChange}
+                            handleDateChange={this.handleDateChange}
+                            contract={contract}
+                            newsPostId={newsPostId}
+                            newsPostTitle={newsPostTitle}
+                            newsVerificationHash={newsVerificationHash}
+                            newsPosts={newsPosts}
+                        />
+                    }
+                    />
+
+                    <Route
+                        exact
+                        path="/@:name"
+                        render={() => 
+                            <SingleNewsPost
+                                loaded={loaded}
+                                login={loggedIn}
+                                contract={contract}
+                                newPosts={newPosts}
+                                backDrop={backDrop}
+                                back={back}
+                                backdropCancelHandler={this.backdropCancelHandler}
+                                backShowHandler={this.backShowHandler}
+                                backCancelHandler={this.backCancelHandler}
+                                handleChange={this.handleChange}
+                                accountId={accountId}
+                            />
+                        }
+                    />
+
+                    <Route
+                    exact
+                    path='/admin'
+                    render={() => 
+                        <Admin
+                            login={loggedIn}
+                            loaded={loaded}
+                            user={user}
+                            role={role}
+                            handleChange={this.handleChange}
+                            contract={contract}
+                            roles={roles}
+                        />
+                    }
+                    />
+
+                    <Route
+                    exact
+                    path='/members'
+                    render={() => 
+                        <Members
+                            login={loggedIn}
+                            loaded={loaded}
+                            user={user}
+                            role={role}
+                            handleChange={this.handleChange}
+                            contract={contract}
+                            roles={roles}
+                            members={members}
+                        />
+                    }
+                    />
+
+                </Switch>
+                <Footer />
+            </Grid>
+        )
+    }
+}
+
+export default withRouter(App)

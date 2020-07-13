@@ -1,0 +1,128 @@
+import React, { Component } from 'react'
+import { Link } from 'react-router-dom';
+import {
+  Container,
+  Button,
+  Label,
+  Icon,
+  Divider,
+  Dropdown,
+  Grid,
+  Header,
+  Image,
+  List,
+  Menu,
+  Segment,
+  Input,
+  Message,
+} from 'semantic-ui-react'
+
+
+class HeaderNav extends Component {
+
+    constructor(props) {
+        super(props)
+        this.state = {
+            balance: '',
+            loaded: false
+        }
+    }
+
+    componentDidMount() {
+        this.loadData().then(() => {
+            this.setState({loaded:true})
+            if(this.props.login) {
+            this.getCurrentBalance()
+            }
+        })
+    }
+
+    async loadData() {
+        console.log(this.props)
+    }
+
+    async getCurrentBalance() {
+        let currentBalance = await this.props.account.getAccountBalance();
+        let formattedBalance = (parseFloat(currentBalance.available)/Math.pow(10, 24)).toFixed(2);
+        console.log('currentBalance', (parseFloat(currentBalance.available)/Math.pow(10, 24)).toFixed(2))
+        this.setState({
+            balance: formattedBalance
+        })
+        console.log('Balance: ', this.state.balance)
+    }
+
+   render() {
+    let { login, loaded, requestSignOut, requestSignIn, accountId, length, handleChange } = this.props
+
+    let loginButton = '';
+    if (!login) { loginButton = (
+        <Button as='div' labelPosition='left' onClick={requestSignIn}>
+            <Label as='a' basic pointing='right'>
+            Enter the Guild
+            </Label>
+            <Button icon>
+                <Icon name='lock' />
+            </Button>
+        </Button>
+        )
+    } else if (login && loaded) { loginButton = (
+        <Button as='div' labelPosition='left' onClick={requestSignOut}>
+        <Label as='a' basic pointing='right'>
+            Sign Out
+        </Label>
+            <Button>
+                {accountId}                  
+            </Button>
+        </Button>
+        )
+    }
+
+       return(
+        
+            <Menu fixed='top' inverted stackable borderless>
+
+                <Link to="/">
+                    <Menu.Item header>
+                        <Image size='mini' src={require('../../../assets/vpguild-logo.png')} style={{ marginRight: '1.5em' }} />
+                        Vital Point Guild
+                    </Menu.Item>
+                </Link>
+
+                <Menu.Item>
+                    <Input className='icon' icon='search' placeholder='Search the Guild...' />
+                </Menu.Item>
+
+               
+               
+                <Menu.Menu position='right'>
+                {login? <Menu.Item icon='bell' /> : '' }
+                {login?
+                    <Dropdown icon='add' floating className='item icon'>
+                        <Dropdown.Menu>
+                        <Dropdown.Header icon='list ul' content='Submit'/>
+                            <Dropdown.Divider/>
+                            <Dropdown.Item icon='add' text='Submit News' as={Link} to='/submit-news'/>
+                            <Dropdown.Divider/>
+                        <Dropdown.Header icon='settings' content='Admin'/>
+                            <Dropdown.Divider/>
+                            <Dropdown.Item icon='arrow circle right' text='Admin' as={Link} to='/admin'/>
+                            <Dropdown.Item icon='user' text='Members' as={Link} to='/members'/>
+                            <Dropdown.Divider/>
+                        <Dropdown.Header icon='tags' content='Account'/>
+                            <Dropdown.Divider/>
+                            <Dropdown.Item icon='dollar' href='https://wallet.testnet.near.org' text={`Balance: ${this.state.balance}`} />                         
+                            
+                        </Dropdown.Menu>
+                    </Dropdown>
+                    
+                : ''}
+                    <Menu.Item>
+                        {loginButton}
+                    </Menu.Item>
+                    </Menu.Menu>
+            </Menu>
+       )
+   }
+}
+
+export default HeaderNav

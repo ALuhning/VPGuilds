@@ -1,0 +1,10 @@
+.home {
+    width: 100%;
+    margin: auto;
+    display: grid;
+    text-align: center;
+}
+
+.main {
+    margin-top:100px;
+}

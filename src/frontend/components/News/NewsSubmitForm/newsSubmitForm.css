@@ -1,0 +1,18 @@
+button.ui.button {
+    margin-top: 30px;
+}
+
+input.datepicker {
+    display: block;
+    color: #495057;
+    width: auto;
+    border: 1px solid #ced4da;
+    background-clip: padding-box;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: .25rem;
+    border-bottom-right-radius: .25rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+  }
