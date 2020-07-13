@@ -10,7 +10,7 @@ import {
 
 import {  UserIdentity, Member, MemberMetaData,
           UserRole, UserRoleMetaData,
-          AppIdentity,
+          AppIdentity, App, AppMetaData, AppsArray,
           NewsPost, NewsPostArray, NewsPostMetaData, MembersArray } from "./model";
 
 // Collections where we store data
@@ -20,6 +20,7 @@ let userIdentity = new PersistentMap<string, UserIdentity>("userIdentity");
 // store app identities
 let appIdentity = new PersistentMap<string, AppIdentity>("appIdentity");
 let apps = new PersistentVector<string>("apps");
+let appProfile = new PersistentMap<string, AppMetaData>("appdata");
 
 // store all unique news posts
 let newsPosts = new PersistentVector<string>("news");
@@ -135,6 +136,17 @@ export function getMemberData(memberId: string): Array<string> {
   return memberData;
 }
 
+export function getAppData(appNumber: string): Array<string> {
+  let app = appProfile.get(appNumber);
+  logging.log('getting app data')
+  logging.log(app)
+  if(!app) {
+    return new Array<string>();
+  }
+  let appData = app.applog;
+  return appData;
+}
+
 export function getAllMembers(): MembersArray {
   logging.log('retrieving members');
   let _memberList = new Array<string[]>();
@@ -209,6 +221,40 @@ export function setMemberData(member: Member): void {
   logging.log(memberData);
 }
 
+export function setAppData(app: App): void {
+  let _appNumber = getAppData(app.appNumber);
+  logging.log('setting member data')
+  logging.log(_appNumber)
+  if(_appNumber == null) {
+    _appNumber = new Array<string>();
+    _appNumber.push(app.appNumber); 
+    _appNumber.push(app.appId);
+    _appNumber.push(app.appCreatedDate);
+    _appNumber.push(app.status);
+    logging.log(_appNumber)
+  } else {
+    let present = false;
+    for(let i: i32 = 0; i < _appNumber.length; i++){
+      if (_appNumber[0] == app.appNumber) {
+        present = true;
+        break;
+      }
+    }
+    if (!present) {
+      _appNumber.push(app.appNumber); 
+      _appNumber.push(app.appId);
+      _appNumber.push(app.appCreatedDate);
+      _appNumber.push(app.status);
+    }
+  }
+  let appData = new AppMetaData();
+  appData.applog = _appNumber;
+  appProfile.set(app.appNumber, appData);
+  logging.log(appProfile);
+  logging.log(app.appNumber);
+  logging.log(appData);
+}
+
 export function addMember(user: string): void {
   let present = false;
   for(let i: i32 = 0; i < users.length; i++) {
@@ -230,6 +276,19 @@ function _addNewMember(memberId: string): void {
   }
   if (!present) {
     members.push(memberId);
+  }
+}
+
+
+function _addNewApp(appNumber: string): void {
+  let present = false;
+  for(let i: i32 = 0; i < apps.length; i++) {
+    if (apps[i] == appNumber) {
+      present = true;
+    }
+  }
+  if (!present) {
+    apps.push(appNumber);
   }
 }
 
@@ -278,7 +337,7 @@ export function registerUserRole(
     return userRole;
   }
 
-// Log user roles
+// Register Member
 
 export function registerMember(
   memberId: string,
@@ -315,6 +374,41 @@ export function registerMember(
     _addNewMember(memberId);
     logging.log("registered new member");
     return member;
+  }
+
+// Register App
+
+export function registerApp(
+  appNumber: string,
+  appId: string,
+  appCreatedDate: string,
+  status: string
+  ): App {
+  logging.log("registering app");
+  return _registerApp(
+    appNumber,
+    appId,
+    appCreatedDate,
+    status
+  );
+  }
+  
+  function _registerApp(
+    appNumber: string,
+    appId: string,
+    appCreatedDate: string,
+    status: string
+  ): App {
+    logging.log("start registering new app");
+    let app = new App();
+    app.appNumber = appNumber;
+    app.appId = appId;
+    app.appCreatedDate = appCreatedDate;
+    app.status = status;
+    setAppData(app);
+    _addNewApp(appId);
+    logging.log("registered new app");
+    return app;
   }
 
 

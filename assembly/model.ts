@@ -20,15 +20,21 @@ export class AppIdentity {
 // App Definitions
 @nearBindgen
 export class App {
-    appNumber: string;
-    appId: string;
+    appNumber: string; //App ID
+    appId: string; // App Title
     appCreatedDate: string;
+    status: string;
 }
 
 @nearBindgen
 export class AppsArray {
     apps: Array<string[]>;
     len: i32;
+}
+
+@nearBindgen
+export class AppMetaData {
+    applog: Array<string>;
 }
 
 // Member Definitions

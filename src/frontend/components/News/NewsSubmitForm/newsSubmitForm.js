@@ -26,6 +26,7 @@ class NewsSubmitForm extends Component {
             newsPostCategory: '',
             newsPostPhotos: [],
             newsVerificationHash: '',
+            published: false,
             load: false,
         };
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -67,6 +68,14 @@ class NewsSubmitForm extends Component {
             newsPostTitle: value
         })
         this.props.handleChange({ name: "newsPostTitle", value })
+    }
+
+    handleRadioChange = (event) => {
+        let value = event.target.value;
+        this.setState({ 
+            published: value
+        })
+        this.props.handleChange({ name: "published", value })
     }
 
 
@@ -174,6 +183,15 @@ class NewsSubmitForm extends Component {
                                 dateFormat="MM/dd/yyyy h:mm aa"
                                 required
                             />
+                            <Form.Group inline>
+                                <label>Published</label>
+                                <Form.Radio
+                                    label='Published'
+                                    value={this.state.published}
+                                    checked={value === true}
+                                    onChange={this.handleRadioChange}
+                                />
+                            </Form.Group>
                         </Segment>
                      </Segment.Group>
                             <ReactQuill

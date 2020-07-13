@@ -3,9 +3,8 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import AppBuilder from './frontend/container';
 import getConfig from './config.js';
-//import * as nearlib from 'near-api-js';
-import { connect, keyStores, WalletConnection, Connection, Account, Contract } from 'near-api-js';
-import { initiateDB } from './frontend/utils/ThreadDB';
+import { connect, keyStores, WalletConnection, Connection, Account } from 'near-api-js';
+import { initiateDB, initiateAppDB } from './frontend/utils/ThreadDB';
 
 import 'semantic-ui-css/semantic.min.css';
 
@@ -63,6 +62,7 @@ console.log('nearconfig', nearConfig)
         changeMethods: [
         // Setting Identity
         'setIdentity',
+        'setAppIdentity',
 
         // Member Management
         'setUserRoles',
@@ -72,6 +72,11 @@ console.log('nearconfig', nearConfig)
         'setMemberData',
         'registerMember',
         'addNewMember',
+
+        // App Management
+        'setAppData',
+        'registerApp',
+        'addNewApp',
 
         // News Post Management
         'postNewsPost',
@@ -85,12 +90,17 @@ console.log('nearconfig', nearConfig)
         viewMethods: [
           // Identity
           'getIdentity',
+          'getAppIdentity',
+
           // Member Views
           'getUserRoles',
           'getAllUserRoles',
           'listMembers',
           'getMemberData',
           'getAllMembers',
+
+          // App Views
+          'getAppData',
 
           // News Post Views
           'authorOfNewsPost',
@@ -108,6 +118,7 @@ console.log('nearconfig', nearConfig)
     // initiate database if there is a user (Textile)
     if(window.accountId !== '') {
       await initiateDB()
+      await initiateAppDB()
     }
     console.log('window.contract', window.contract)
 }

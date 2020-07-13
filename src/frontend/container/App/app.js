@@ -42,6 +42,7 @@ class App extends Component {
             newsPostTitle: '',
             newsVerificationHash: '',
             newsPosts: [],
+            published: false,
 
             // Consolidation Pages
             allNewsPosts: [],
