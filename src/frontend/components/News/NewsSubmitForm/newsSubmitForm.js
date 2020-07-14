@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { BsCardHeading, BsFillCalendarFill, BsArrowUp, BsFillClockFill } from "react-icons/bs";
-import { Container, Form, Input, Button, TextArea, Segment, Grid } from 'semantic-ui-react';
+import { Container, Form, Input, Button, TextArea, Segment, Grid, Checkbox } from 'semantic-ui-react';
 import DatePicker from 'react-datepicker';
 import ImageUploader from 'react-images-upload';
 import { generateHash } from '../../../utils/Encryption';
@@ -71,11 +71,14 @@ class NewsSubmitForm extends Component {
     }
 
     handleRadioChange = (event) => {
-        let value = event.target.value;
-        this.setState({ 
-            published: value
-        })
-        this.props.handleChange({ name: "published", value })
+      //  this.setState({ 
+      //      published: !this.state.published
+      //  })
+        let current = !this.state.published
+        console.log('current', current)
+        console.log('before state', this.state.published)
+        this.props.handleChange({ name: "published", current })
+        console.log('after state', this.state.published)
     }
 
 
@@ -185,10 +188,7 @@ class NewsSubmitForm extends Component {
                             />
                             <Form.Group inline>
                                 <label>Published</label>
-                                <Form.Radio
-                                    label='Published'
-                                    value={this.state.published}
-                                    checked={value === true}
+                                <Checkbox toggle 
                                     onChange={this.handleRadioChange}
                                 />
                             </Form.Group>

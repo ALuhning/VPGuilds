@@ -1,6 +1,6 @@
 import {
   env,
-  context,
+  Context,
   storage,
   logging, 
   PersistentVector, 
@@ -42,7 +42,7 @@ let memberProfile = new PersistentMap<string, MemberMetaData>("memberdata");
 function _incrementCounter(value: u32): void {
   const newCounter = storage.getPrimitive<u32>("memberId", 0) + value;
   storage.set<u32>("memberId", newCounter);
-  logging.log("Current Member Id is now: " + newCounter.toString());
+  
 }
 
 function _getMemberId(): u32 {
@@ -51,7 +51,7 @@ function _getMemberId(): u32 {
 
 // ThreadDB identity functions
 // Create new identity for User threadsDB
-export function setIdentity(account: string, encryptedId: string, threadId: string, status: string): void {
+export function setIdentity(account: string, identity: string, threadId: string, status: string): void {
   let present = false;
   logging.log('members vector');
   logging.log(members);
@@ -65,11 +65,11 @@ export function setIdentity(account: string, encryptedId: string, threadId: stri
       let thisMemberId = members.length + 1;
       let newId = new UserIdentity();
       newId.account = account;
-      newId.identity = encryptedId;
+      newId.identity = identity;
       newId.threadId = threadId;
       newId.memberId = thisMemberId;
       newId.status = status;
-      userIdentity.set(context.sender, newId);
+      userIdentity.set(Context.sender, newId);
     } else {
       logging.log('member already has an identity set');
     }
@@ -83,7 +83,7 @@ export function getIdentity(account: string): UserIdentity {
 }
 
 // Create new Identity for App ThreadsDB
-export function setAppIdentity(appId: string, encryptedId: string, threadId: string, status: string): void {
+export function setAppIdentity(appId: string, identity: string, threadId: string, status: string): void {
   let present = false;
   logging.log('apps vector');
   logging.log(apps);
@@ -97,11 +97,11 @@ export function setAppIdentity(appId: string, encryptedId: string, threadId: str
       let thisAppNumber = apps.length + 1;
       let newAppIdentity = new AppIdentity();
       newAppIdentity.appId = appId;
-      newAppIdentity.identity = encryptedId;
+      newAppIdentity.identity = identity;
       newAppIdentity.threadId = threadId;
       newAppIdentity.appNumber = thisAppNumber;
       newAppIdentity.status = status;
-      appIdentity.set(context.sender, newAppIdentity);
+      appIdentity.set(appId, newAppIdentity);
     } else {
       logging.log('app already has an identity set');
     }
@@ -163,14 +163,14 @@ export function getAllMembers(): MembersArray {
   return ml;
 }
 
-export function getAllUserRoles(): Array<UserRoleMetaData> {
-  let users = new Array<UserRoleMetaData>();
-  logging.log(users);
-  for (let i: i32 = 0; i < userRoleList.length; i++) {
-    users.push(userRoleList[i]);
-  }
-  return users;
-}
+//export function getAllUserRoles(): Array<UserRoleMetaData> {
+//  let users = new Array<UserRoleMetaData>();
+//  logging.log(users);
+//  for (let i: i32 = 0; i < userRoleList.length; i++) {
+//    users.push(userRoleList[i]);
+//  }
+//  return users;
+//}
 
 export function setUserRoles(role: UserRole): void {
   let _userId = getUserRoles(role.user);
@@ -301,7 +301,7 @@ for (let i: i32 = 0; i<users.length; i++) {
 }
 
 export function changeUserRole(user: string, role: string): void {
-  if(context.sender == 'guildleader.testnet') {
+  if(Context.sender == 'guildleader.testnet') {
     logging.log('deleting old user')
     userRoles.delete(user)
     logging.log('registering new user/role')
@@ -515,7 +515,7 @@ export function setNewsPost(post: NewsPost): void {
 }
 
 export function getSender(): string {
-  return context.sender;
+  return Context.sender;
 }
 
 export function deleteNewsPost(tokenId: string): void {
@@ -562,7 +562,7 @@ function _postNewsPost(
 ): NewsPost {
   logging.log("start posting news post");
   let post = new NewsPost();
-  post.newsPostAuthor = context.sender;
+  post.newsPostAuthor = Context.sender;
   post.newsPostId = newsPostId;
   post.newsVerificationHash = newsVerificationHash;
   logging.log('setting news post data');

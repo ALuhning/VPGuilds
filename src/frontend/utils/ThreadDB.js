@@ -5,7 +5,7 @@ import { encryptSecretBox, decryptSecretBox, parseEncryptionKeyNear } from './En
 
 const appId = process.env.APPID;
 
-async function getAppIdentity(appID) {
+async function getAppIdentity(appId) {
       const type = 'org';
       /** Restore any cached app identity first */
       const cached = localStorage.getItem(appId + ":" + process.env.THREADDB_APPIDENTITY_STRING)
@@ -58,7 +58,7 @@ async function getAppIdentity(appID) {
                   let stringThreadId = threadId.toString();
                   localStorage.setItem(appId + ":" + process.env.THREADDB_APP_THREADID, stringThreadId);
                   let status = 'active'  
-                  await window.contract.setAppIdentity({appId: appId, encryptedId: encryptedId, threadId: stringThreadId, status: status }, process.env.DEFAULT_GAS_VALUE);
+                  await window.contract.setAppIdentity({appId: appId, identity: encryptedId, threadId: stringThreadId, status: status }, process.env.DEFAULT_GAS_VALUE);
   
                   const newIdentity = await window.contract.getAppIdentity({appId: appId});
                   console.log('New App Identity', newIdentity)
@@ -124,7 +124,7 @@ async function getIdentity(accountId) {
                 let stringThreadId = threadId.toString();
                 localStorage.setItem(appId + ":" + process.env.THREADDB_USER_THREADID, stringThreadId);
                 let status = 'active'
-                await window.contract.setIdentity({account: accountId, encryptedId: encryptedId, threadId: stringThreadId, status: status }, process.env.DEFAULT_GAS_VALUE);
+                await window.contract.setIdentity({account: accountId, identity: encryptedId, threadId: stringThreadId, status: status }, process.env.DEFAULT_GAS_VALUE);
 
                 const newIdentity = await window.contract.getIdentity({account: accountId});
                 console.log('New Identity', newIdentity)
@@ -140,7 +140,6 @@ async function getAppThreadId(appId) {
 
   /** Restore any cached user identity first */
   const cached = localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)
-  console.log('cached appthreadId', cached)
   
   if (cached !== null) {
       return cached
@@ -165,7 +164,6 @@ async function getThreadId(accountId) {
 
     /** Restore any cached user identity first */
     const cached = localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)
-    console.log('cached threadId', cached)
     
     if (cached !== null) {
         return cached
@@ -363,11 +361,9 @@ const loginWithChallenge = (identity) => {
     
     const identity = await getAppIdentity(appId);
     const threadId = await getAppThreadId(appId);
-    const type='app';
     
     /** Use the identity to request a new API token when needed */
     const loginCallback = appLoginWithChallenge(identity);
-    console.log('logincallback', loginCallback)
     const db = Client.withUserAuth(loginCallback);
  
     console.log('Verified App on Textile API');
@@ -410,7 +406,6 @@ export async function initiateDB() {
     
     /** Use the identity to request a new API token when needed */
     const loginCallback = loginWithChallenge(identity);
-    console.log('logincallback', loginCallback)
     const db = Client.withUserAuth(loginCallback);
  
     console.log('Verified on Textile API');
