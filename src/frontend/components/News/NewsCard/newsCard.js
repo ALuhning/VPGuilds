@@ -35,6 +35,7 @@ class NewsCard extends Component {
                     author: result.author,
                     category: result.category,
                     body: result.body,
+                    published: result.published
                 })
             }
         })

@@ -64,7 +64,14 @@ if(window.accountId === '') {
         'setNewsPost',
         'setNewsPostsByAuthor',
         'deleteNewsPost',
-        'deleteNewsPostProfile'
+        'deleteNewsPostProfile',
+
+        // Comment Management
+        'addComment',
+        'setCommentData',
+        'setCommentDataByAuthor',
+        'deleteComment',
+        'deleteCommentProfile',
       ],
 
         // View methods are read only. They don't modify the state, but usually return some value.
@@ -88,7 +95,11 @@ if(window.accountId === '') {
           'getNewsPostsByAuthor',
           'getNewsPost',
           'getSender',
-          'getAllNewsPosts'
+          'getAllNewsPosts',
+
+          // Comments Views
+          'getCommentData',
+          'getCommentsByAuthor',
         ],
        
         // Sender is the account ID to initialize transactions.

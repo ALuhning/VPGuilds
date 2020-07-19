@@ -94,3 +94,25 @@ export class NewsPostArray {
     newsPosts: Array<string[]>;
     len: i32;
 }
+
+// Comments Models
+@nearBindgen
+export class Comment {
+    commentAuthor: string;
+    commentId: string;
+    commentParent: string;
+    commentVerificationHash: string;
+    published: string;
+}
+
+@nearBindgen
+export class CommentMetaData {
+    commentData: Array<string>;
+    len: i32;
+}
+
+@nearBindgen
+export class CommentArray {
+    comments: Array<string[]>;
+    len: i32;
+}
