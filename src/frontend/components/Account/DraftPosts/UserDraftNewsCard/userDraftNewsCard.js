@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Card, Image, Icon, Loader, Dimmer, Segment, Header, Divider, Label, Grid } from 'semantic-ui-react'
-import { retrieveAppRecord, deleteAppRecord } from '../../../utils/ThreadDB'
+import { retrieveRecord, deleteRecord } from '../../../../utils/ThreadDB'
 
-import './newsCard.css'
+import './userDraftNewsCard.css'
 
-class NewsCard extends Component {
+class UserDraftNewsCard extends Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -18,7 +18,7 @@ class NewsCard extends Component {
             category: '',
             body: '',
             id: '',
-            running: false
+            published: ''
         }
     }
    
@@ -26,7 +26,7 @@ class NewsCard extends Component {
         this.loadData()
         .then((result) => {
             console.log('result', result)
-            if(result.published === true) {
+            
                 this.setState({
                     loaded:true,
                     title: result.title,
@@ -35,13 +35,14 @@ class NewsCard extends Component {
                     author: result.author,
                     category: result.category,
                     body: result.body,
+                    published: result.published
                 })
-            }
+            
         })
     }
 
     async loadData() {
-     let record = await retrieveAppRecord(this.props.newsPostId, 'NewsPost')
+     let record = await retrieveRecord(this.props.newsPostId, 'NewsPost')
      console.log('news card record', record)
      if(record !== undefined) {
         return record
@@ -51,37 +52,30 @@ class NewsCard extends Component {
      }
     }
 
-    handleDelete = () => {
-        let state = this.state.running
-        this.setState({ running: !state })
-    }
-
     deleteNewsPost = () => {
-        let { contract, handleChange, accountId } = this.props
-        this.handleDelete()
-        if (this.state.author === accountId) {
-        deleteAppRecord(this.state.id, 'NewsPost') 
-        contract.deleteNewsPostsProfile({
-            tokenId: this.state.id
+        let { newsPosts, contract, jump, handleChange, handleDelete } = this.props
+       
+        handleDelete()
+        deleteRecord(jump.jumpIdentifier, 'MilitaryJump') 
+        contract.deleteJumpProfile({
+            tokenId: jump.jumpIdentifier
         }, process.env.DEFAULT_GAS_VALUE).then(response => {
-            console.log("[profile.js] posts", response.len)
-            console.log('response', response)
-            let newPosts = response.newsPosts
-            handleChange({ name: "newsPosts", value: newPosts })
-            this.handleDelete()
+            console.log("[profile.js] jumps", response.len)
+            let newJumps = response.jumps
+            handleChange({ name: "jumps", value: newJumps })
+            handleDelete()
         }).catch(err => {
             console.log(err);
         })
-        }
     }
 
 
     render() {
         let { newsPosts, newsPostId } = this.props
         
-        let { id, title, body, postDate, category, author, newsPostPhoto } = this.state
+        let { id, title, body, postDate, category, author, newsPostPhoto, published, loaded } = this.state
       
-        console.log('newsPost props', this.props)
+        console.log('user published news card state', this.state)
         
        
         // Format jump date as string with date and time for display
@@ -93,11 +87,12 @@ class NewsCard extends Component {
            let formatNewsPostDate = '12/12/2020'
         }
         let formatSrc = newsPostPhoto
+
        
-            let info = this.state.loaded 
+            let info = (loaded && !published)
             ? ( 
                 <div className="post">
-                <Header size='huge' as={Link} to={{pathname: "/@"+id}}>{title}</Header>
+                <Header size='huge' as={Link} to={{pathname: "/"+id}}>{title}</Header>
                 <Header.Subheader color='teal'>Posted: 12/20/2020 </Header.Subheader>
               
                 <Segment secondary className="postInfo">
@@ -116,7 +111,7 @@ class NewsCard extends Component {
                 </Segment>
                
                 
-                <span className="badgeposition"><Image size='tiny' src={require('../../../../assets/vpguild-logo.png')} avatar />{newsPostId}</span>
+                <span className="badgeposition"><Image size='tiny' src={require('../../../../../assets/vpguild-logo.png')} avatar />{newsPostId}</span>
                     <Image src={formatSrc} size='small' />
                     
                 
@@ -140,12 +135,14 @@ class NewsCard extends Component {
             )
     
         return (
-            <Card.Group>
-                {info}
-            </Card.Group>
+            
+                <Card.Group>
+                    {info}
+                </Card.Group>
+        
          
         )
     }
 }
 
-export default NewsCard
+export default UserDraftNewsCard

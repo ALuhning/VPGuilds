@@ -30,11 +30,11 @@ class News extends Component {
 
     render() {
 
-        let { login, load, handleChange, handleDateChange, accountId, newsPostId, newsVerificationHash,
+        let { login, loaded, handleChange, handleDateChange, accountId, newsPostId, newsVerificationHash,
             newsPostAuthor, newsPostTitle, newsPostDate,
             newsPostCategory, newsPostBody, newsPostPhotos } = this.props
 
-        if (load && !login) {return <Redirect to="/" />}
+        if (loaded && !login) {return <Redirect to="/" />}
 
         return (
             <Container className="main">

@@ -223,6 +223,7 @@ const loginWithChallengeEK = (identity) => {
                   resolve(data.value)
                   break;
               }
+             
             }
           }
         }
@@ -286,11 +287,14 @@ const loginWithChallenge = (identity) => {
                 resolve(data.value)
                 break;
               }
-             
+              
             }
+       
           }
+          
         }
-      });
+        
+      })
     }
   }
 
@@ -349,49 +353,49 @@ const loginWithChallenge = (identity) => {
                 resolve(data.value)
                 break;
               }
-             
+       
             }
           }
+        
         }
       });
     }
   }
 
   export async function initiateAppDB() {
-    
+    let type = 'app';
     const identity = await getAppIdentity(appId);
+    console.log('app identity', identity)
     const threadId = await getAppThreadId(appId);
-    
-    /** Use the identity to request a new API token when needed */
-    const loginCallback = appLoginWithChallenge(identity);
-    const db = Client.withUserAuth(loginCallback);
+    const appdb = await tokenWakeUp(type)
  
     console.log('Verified App on Textile API');
-    console.log('new app client', db);
-    const token = await db.getToken(identity)
+    console.log('new app client', appdb);
+    await appdb.getToken(identity)
+  //  const token = await db.getToken(identity)
 
-    const cachedToken = localStorage.getItem(appId + ":" + process.env.THREADDB_APPTOKEN_STRING)
+  //  const cachedToken = localStorage.getItem(appId + ":" + process.env.THREADDB_APPTOKEN_STRING)
 
-    if(!cachedToken || cachedToken !== token) {
-        localStorage.removeItem(appId + ":" + process.env.THREADDB_APPTOKEN_STRING)
-        localStorage.setItem(appId + ":" + process.env.THREADDB_APPTOKEN_STRING, token)
-    }
+  //  if(!cachedToken || cachedToken !== token) {
+  //      localStorage.removeItem(appId + ":" + process.env.THREADDB_APPTOKEN_STRING)
+  //      localStorage.setItem(appId + ":" + process.env.THREADDB_APPTOKEN_STRING, token)
+  //  }
   
-    console.log(JSON.stringify(db.context.toJSON()))
+    console.log(JSON.stringify(appdb.context.toJSON()))
     try {
-        await db.getDBInfo(ThreadID.fromString(threadId))
+        await appdb.getDBInfo(ThreadID.fromString(threadId))
         appDbObj = {
-            db: db,
+            db: appdb,
             threadId: threadId,
-            token: token
+  //          token: token
         }
     } catch (err) {
-        await db.newDB(ThreadID.fromString(threadId));
+        await appdb.newDB(ThreadID.fromString(threadId));
         console.log('app DB created');
         appDbObj = {
-            db: db,
+            db: appdb,
             threadId: threadId,
-            token: token
+  //          token: token
         }
     }
     return appDbObj
@@ -400,40 +404,28 @@ const loginWithChallenge = (identity) => {
  
 
 export async function initiateDB() {
-    
+    let type = 'member';
     const identity = await getIdentity(window.accountId);
+    console.log('identity', identity)
     const threadId = await getThreadId(window.accountId);
-    
-    /** Use the identity to request a new API token when needed */
-    const loginCallback = loginWithChallenge(identity);
-    const db = Client.withUserAuth(loginCallback);
+    const db = await tokenWakeUp(type)
+    await db.getToken(identity)
  
     console.log('Verified on Textile API');
-    console.log('new client', db);
-    const token = await db.getToken(identity)
-
-    const cachedToken = localStorage.getItem(appId + ":" + process.env.THREADDB_TOKEN_STRING)
-
-    if(!cachedToken || cachedToken !== token) {
-        localStorage.removeItem(appId + ":" + process.env.THREADDB_TOKEN_STRING)
-        localStorage.setItem(appId + ":" + process.env.THREADDB_TOKEN_STRING, token)
-    }
-  
-    console.log(JSON.stringify(db.context.toJSON()))
+    console.log('db', db)
+   
     try {
         await db.getDBInfo(ThreadID.fromString(threadId))
         dbObj = {
             db: db,
-            threadId: threadId,
-            token: token
+            threadId: threadId
         }
     } catch (err) {
         await db.newDB(ThreadID.fromString(threadId));
         console.log('DB created');
         dbObj = {
             db: db,
-            threadId: threadId,
-            token: token
+            threadId: threadId
         }
     }
     return dbObj
@@ -441,11 +433,8 @@ export async function initiateDB() {
 
 
 export async function initiateAppCollection(collection, schema) {
-  const identity = await getAppIdentity(appId);
-  
-  /** Use the identity to request a new API token when needed */
-  const loginCallback = loginWithChallenge(identity, 'app');
-  const db = Client.withUserAuth(loginCallback);
+  let type = 'app'
+  const db = await tokenWakeUp(type)
   
   try {
       const r = await db.find(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, {})
@@ -461,12 +450,9 @@ export async function initiateAppCollection(collection, schema) {
 
 
 export async function initiateCollection(collection, schema) {
-    const identity = await getIdentity(window.accountId);
-    
-    /** Use the identity to request a new API token when needed */
-    const loginCallback = loginWithChallenge(identity);
-    const db = Client.withUserAuth(loginCallback);
-    
+  let type = 'member'
+  const db = await tokenWakeUp(type)
+
     try {
         const r = await db.find(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)), collection, {})
         console.log('r :', r)
@@ -503,12 +489,25 @@ export async function dataURItoBlob(dataURI)
     return new Blob([ia], {type: mimeString});
 }
 
-export async function retrieveAppRecord(id, collection) {
-  const identity = await getAppIdentity(appId);
-  
+export async function tokenWakeUp(type) {
   /** Use the identity to request a new API token when needed */
-  const loginCallback = loginWithChallenge(identity, 'app');
-  const db = Client.withUserAuth(loginCallback);
+  console.log('type', type)
+  if (type === 'member') {
+    const identity = await getIdentity(window.accountId);
+    const loginCallback = loginWithChallenge(identity, type);
+    const db = Client.withUserAuth(loginCallback);
+    return db
+  } else if (type ==='app' ) {
+    const identity = await getAppIdentity(appId)
+    const loginCallback = appLoginWithChallenge(identity, type);
+    const db = Client.withUserAuth(loginCallback);
+    return db
+  }
+}
+
+export async function retrieveAppRecord(id, collection) {
+  let type = 'app'
+  const db = await tokenWakeUp(type)
 
   let obj
   try {
@@ -522,12 +521,43 @@ export async function retrieveAppRecord(id, collection) {
   return obj
 }
 
+export async function retrieveAppRecords(records, appdb, collection) {
+
+  ////currently NOT USED
+
+//   let type = 'app'
+//   const db = await tokenWakeUp(type)
+ 
+   let obj = []
+   try {
+    if (records.length > 0) {
+      records.map(post => {
+         console.log('news records map', post)
+         console.log('post[0]', post[0])
+         if(post[0]!=='' && post[3]!=='false') {
+            let r = appdb.findByID(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, post[0])
+            r.then((result) => {
+              console.log('record retrieved', result.instance);
+              obj.push([
+                result.instance._id,
+                result.instance.title
+              ]
+              )
+            })
+         }
+      })
+    }    
+   } catch (err) {
+       console.log('error', err)
+       console.log('id does not exist')
+   }
+   console.log('object here', obj)
+   return obj
+ }
+
 export async function retrieveRecord(id, collection) {
-    const identity = await getIdentity(window.accountId);
-    
-    /** Use the identity to request a new API token when needed */
-    const loginCallback = loginWithChallenge(identity);
-    const db = Client.withUserAuth(loginCallback);
+    let type = 'member'
+    const db = await tokenWakeUp(type)
 
     let obj
     try {
@@ -542,11 +572,8 @@ export async function retrieveRecord(id, collection) {
 }
 
 export async function createAppRecord(collection, record) {
-  const identity = await getAppIdentity(appId);
-  
-  /** Use the identity to request a new API token when needed */
-  const loginCallback = loginWithChallenge(identity, 'app');
-  const db = Client.withUserAuth(loginCallback);
+    let type = 'app'
+    const db = await tokenWakeUp(type)
 
   try {
      await db.create(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, record)        
@@ -558,11 +585,8 @@ export async function createAppRecord(collection, record) {
 }
 
 export async function createRecord(collection, record) {
-    const identity = await getIdentity(window.accountId);
-    
-    /** Use the identity to request a new API token when needed */
-    const loginCallback = loginWithChallenge(identity);
-    const db = Client.withUserAuth(loginCallback);
+  let type = 'member'
+  const db = await tokenWakeUp(type)
 
     try {
        await db.create(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)), collection, record)        
@@ -575,12 +599,8 @@ export async function createRecord(collection, record) {
 
 
 export async function deleteAppRecord(id, collection) {
-  const identity = await getAppIdentity(appId);
-  
-  
-  /** Use the identity to request a new API token when needed */
-  const loginCallback = loginWithChallenge(identity, 'app');
-  const db = Client.withUserAuth(loginCallback);
+  let type = 'app'
+  const db = await tokenWakeUp(type)
 
   try {
       await db.delete(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, [id])
@@ -593,12 +613,8 @@ export async function deleteAppRecord(id, collection) {
 
 
 export async function deleteRecord(id, collection) {
-    const identity = await getIdentity(window.accountId);
-    
-    
-    /** Use the identity to request a new API token when needed */
-    const loginCallback = loginWithChallenge(identity);
-    const db = Client.withUserAuth(loginCallback);
+  let type = 'member'
+  const db = await tokenWakeUp(type)
 
     try {
         await db.delete(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)), collection, [id])

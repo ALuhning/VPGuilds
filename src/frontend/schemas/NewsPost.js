@@ -27,5 +27,8 @@ export const newsPostSchema = {
         type: 'integer',
         minimum: 0,
       },
+      published: {
+        type: 'boolean'
+      },
     },
 }

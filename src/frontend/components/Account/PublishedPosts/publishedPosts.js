@@ -1,29 +1,20 @@
 import React, { Component } from 'react';
 import { Container, Grid, Segment } from 'semantic-ui-react';
-import Poster from './poster/poster'
-import NewsList from '../News/NewsList/newsList'
+import UserPublishedNewsList from './userPublishedNewsList'
 
-import './home.css';
-class Home extends Component {
+import './publishedPosts.css';
+class PublishedPosts extends Component {
     render() {
-        let { login, loaded, newsPosts, accountId, userdb, appdb} = this.props
-        console.log('login', login)
-        console.log('loaded', loaded)
+        let { login, loaded, newsPosts, accountId} = this.props
         let page = '';
-        if(!login) {
+        if (login && loaded) {
             page = (
-                <Poster />
-            )
-        } else if (login && loaded) {
-            page = (
-                <NewsList
+                <UserPublishedNewsList
                     login={login}
                     loaded={loaded}
                     contract={contract}
                     newsPosts={newsPosts}
                     accountId={accountId}
-                    userdb={userdb}
-                    appdb={appdb}
                 />
                 )
         }
@@ -37,4 +28,4 @@ class Home extends Component {
     }
 }
 
-export default Home
+export default PublishedPosts

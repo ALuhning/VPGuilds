@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { Redirect, withRouter } from 'react-router-dom';
-import { Container, Header, Card, Segment } from 'semantic-ui-react';
-import NewsCard from '../NewsCard/newsCard';
+import { Container, Header } from 'semantic-ui-react';
+import UserPublishedNewsCard from './UserPublishedNewsCard/userPublishedNewsCard';
 
-import './newsList.css';
+import './userPublishedNewsList.css';
 
-class NewsList extends Component {
+class UserPublishedNewsList extends Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -21,8 +21,6 @@ class NewsList extends Component {
     }
 
     async loadData() {
-        let newsPostList = await this.props.contract.getAllNewsPosts();
-       console.log('existing news posts', newsPostList)
        
     }
 
@@ -42,16 +40,18 @@ class NewsList extends Component {
         if (newsPosts.length > 0) {
             Posts = newsPosts.map(post => {
                console.log('news posts map', post)
-               if(post[0]!='' && post[3] === 'true') {
+               console.log('post[0]', post[0])
+               console.log('accountId', accountId)
+               console.log('post[1]', post[1])
+               if(post[0]!=='' && post[1] === accountId && post[3]=== 'true') {
                 return (
                         
-                        <NewsCard
+                        <UserPublishedNewsCard
                             key={post[0]}
                             newsPostId={post[0]}
                             contract={contract}
                             newsPosts={newsPosts}
                             handleChange={handleChange}
-                            accountId={accountId}
                             />
                        
                     )
@@ -60,14 +60,14 @@ class NewsList extends Component {
         }    
     
         return (
-                <div>
-                <Header as='h1'>Latest News</Header>
+                <Container className="main">
+                <Header as='h1'>Published News Posts</Header>
                  {Posts}
-               </div>
+               </Container>
            
         )
     }
     }
 }
 
-export default withRouter(NewsList)
+export default withRouter(UserPublishedNewsList)

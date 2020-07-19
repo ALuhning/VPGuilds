@@ -5,7 +5,7 @@ import { Container, Form, Input, Button, TextArea, Segment, Grid, Checkbox } fro
 import DatePicker from 'react-datepicker';
 import ImageUploader from 'react-images-upload';
 import { generateHash } from '../../../utils/Encryption';
-import { initiateCollection, retrieveRecord, createRecord } from '../../../utils/ThreadDB';
+import { initiateCollection, retrieveRecord, createRecord, initiateAppCollection, createAppRecord } from '../../../utils/ThreadDB';
 import ReactQuill from 'react-quill';
 
 import './newsSubmitForm.css';
@@ -27,7 +27,7 @@ class NewsSubmitForm extends Component {
             newsPostPhotos: [],
             newsVerificationHash: '',
             published: false,
-            load: false,
+            loaded: false,
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.onDrop = this.onDrop.bind(this);
@@ -37,7 +37,7 @@ class NewsSubmitForm extends Component {
 
     componentDidMount() {
         this.loadData().then(() => {
-            this.setState({load:true})
+            this.setState({loaded:true})
         })
     }
 
@@ -70,15 +70,12 @@ class NewsSubmitForm extends Component {
         this.props.handleChange({ name: "newsPostTitle", value })
     }
 
-    handleRadioChange = (event) => {
-      //  this.setState({ 
-      //      published: !this.state.published
-      //  })
-        let current = !this.state.published
-        console.log('current', current)
-        console.log('before state', this.state.published)
-        this.props.handleChange({ name: "published", current })
-        console.log('after state', this.state.published)
+    handlePublishToggle = () => {
+        const published = !(this.state.published)
+        this.setState({
+            published: published
+        })
+        this.props.handleChange( {name: "published", published })
     }
 
 
@@ -130,10 +127,28 @@ class NewsSubmitForm extends Component {
                     author: this.state.newsPostAuthor,
                     newsPostPhotos: this.state.newsPostPhotos,
                     postDate: this.state.newsPostDate,
+                    published: this.state.published
                   }
             ]);
+        if(this.state.published) {
+            await initiateAppCollection('NewsPost', newsPostSchema)
+            await createAppRecord('NewsPost', [
+                {
+                    _id: this.state.newsPostId,
+                    title: this.state.newsPostTitle,
+                    body: this.state.newsPostBody,
+                    category: this.state.newsPostCategory,
+                    verificationHash: this.state.newsVerificationHash,
+                    author: this.state.newsPostAuthor,
+                    newsPostPhotos: this.state.newsPostPhotos,
+                    postDate: this.state.newsPostDate,
+                    published: this.state.published
+                }
+            ]);
+        }
             this.props.handleChange({ name: 'newsPostId', value: this.state.newsPostId})
             this.props.handleChange({ name: 'newsVerificationHash', value: this.state.newsVerificationHash})
+            this.props.handleChange({ name: 'published', value: this.state.published})
             this.props.history.push("/posting")
     }
     modules = {
@@ -154,7 +169,8 @@ class NewsSubmitForm extends Component {
       ];
 
     render() {
-        if (this.state.load === false) {
+        
+        if (this.state.loaded === false) {
             return <div>Loading...</div>
         } else {
     
@@ -173,7 +189,7 @@ class NewsSubmitForm extends Component {
                                 required
                         />
                         </Segment>
-                        <Segment>
+                        <Segment.Group>
                             <DatePicker
                                 className="datepicker"
                                 selected={this.state.newsPostDate}
@@ -186,13 +202,13 @@ class NewsSubmitForm extends Component {
                                 dateFormat="MM/dd/yyyy h:mm aa"
                                 required
                             />
-                            <Form.Group inline>
+                            <Segment.Inline>
                                 <label>Published</label>
                                 <Checkbox toggle 
-                                    onChange={this.handleRadioChange}
+                                    onChange={this.handlePublishToggle}
                                 />
-                            </Form.Group>
-                        </Segment>
+                            </Segment.Inline>
+                        </Segment.Group>
                      </Segment.Group>
                             <ReactQuill
                                 theme="snow"

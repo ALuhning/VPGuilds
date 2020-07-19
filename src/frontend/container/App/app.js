@@ -17,6 +17,9 @@ import News from '../../components/News/news'
 import Posting from '../../components/News/Posting/posting'
 import Admin from '../../components/Admin/admin'
 import Members from '../../components/Members/members'
+import SingleNewsPost from '../../components/News/SingleNewsPost/singleNewsPost'
+import UserPublishedNewsList from '../../components/Account/PublishedPosts/userPublishedNewsList'
+import UserDraftNewsList from '../../components/Account/DraftPosts/userDraftNewsList'
 
 
 import './app.css';
@@ -31,6 +34,7 @@ class App extends Component {
             backDrop: false,
             back: false,
             accountId: '',
+          
 
             // News Posts
             newsPostId: '',
@@ -186,9 +190,10 @@ class App extends Component {
     render() {
         let { loggedIn, loaded, backDrop, back, accountId, user, role, roles,
         newsPostId, newsPostAuthor, newsPostBody, newsPostCategory, newsPostTitle, newsPostPhotos, 
-        newsVerificationHash, newsPostDate, newsPosts, members } = this.state
+        newsVerificationHash, published, newsPostDate, newsPosts, members } = this.state
 
         let { contract, account } = this.props
+        console.log('appaccount', account)
        
         console.log('logged in', loggedIn)
         return (
@@ -213,6 +218,35 @@ class App extends Component {
                             loaded={loaded}
                             newsPosts={newsPosts}
                             accountId={accountId}
+                        
+
+                        />
+                    }
+                    />
+
+                    <Route
+                    exact
+                    path='/user-published-posts'
+                    render={() => 
+                        <UserPublishedNewsList
+                            login={loggedIn}
+                            loaded={loaded}
+                            newsPosts={newsPosts}
+                            accountId={accountId}
+
+                        />
+                    }
+                    />
+
+                    <Route
+                    exact
+                    path='/user-draft-posts'
+                    render={() => 
+                        <UserDraftNewsList
+                            login={loggedIn}
+                            loaded={loaded}
+                            newsPosts={newsPosts}
+                            accountId={accountId}
 
                         />
                     }
@@ -224,7 +258,7 @@ class App extends Component {
                     render={() => 
                         <News
                             login={loggedIn}
-                            load={loaded}
+                            loaded={loaded}
                             accountId={accountId}
                             handleChange={this.handleChange}
                             handleDateChange={this.handleDateChange}
@@ -254,6 +288,7 @@ class App extends Component {
                             newsPostId={newsPostId}
                             newsPostTitle={newsPostTitle}
                             newsVerificationHash={newsVerificationHash}
+                            published={published}
                             newsPosts={newsPosts}
                         />
                     }
@@ -261,13 +296,16 @@ class App extends Component {
 
                     <Route
                         exact
-                        path="/@:name"
+                        path='/@:topicId'
+                        
                         render={() => 
                             <SingleNewsPost
                                 loaded={loaded}
                                 login={loggedIn}
                                 contract={contract}
-                                newPosts={newPosts}
+                                newsPosts={newsPosts}
+                                newsPostTitle={newsPostTitle}
+                                newsPostId={newsPostId}
                                 backDrop={backDrop}
                                 back={back}
                                 backdropCancelHandler={this.backdropCancelHandler}
@@ -275,6 +313,7 @@ class App extends Component {
                                 backCancelHandler={this.backCancelHandler}
                                 handleChange={this.handleChange}
                                 accountId={accountId}
+                                history={history}
                             />
                         }
                     />

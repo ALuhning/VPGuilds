@@ -110,6 +110,8 @@ class HeaderNav extends Component {
                             <Dropdown.Divider/>
                         <Dropdown.Header icon='tags' content='Account'/>
                             <Dropdown.Divider/>
+                            <Dropdown.Item icon='user' text='My Published Content' as={Link} to='/user-published-posts'/>
+                            <Dropdown.Item icon='user' text='My Draft Content' as={Link} to='/user-draft-posts'/>
                             <Dropdown.Item icon='dollar' href='https://wallet.testnet.near.org' text={`Balance: ${this.state.balance}`} />                         
                             
                         </Dropdown.Menu>

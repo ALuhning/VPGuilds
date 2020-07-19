@@ -1,82 +1,113 @@
 import React, { Component } from 'react';
 import { Redirect, withRouter } from 'react-router-dom';
-import { GrTwitter, GrFacebook } from 'react-icons/gr';
 
-import { CreationSingle } from '../creation/creationSingle/creationSingle';
-import SharePage from '../Share/share';
-import Spinners from '../common/spinner/spinner';
+import  FullNewsPost from '../../Templates/NewsPostTemplate/fullNewsPost';
+import  Share from '../../Share/share';
+import { SendAndShare } from '../../Share/sendAndShare';
+import Spinners from '../../common/Spinner/spinner';
+import { Container, Segment } from 'semantic-ui-react';
+import { retrieveAppRecord } from '../../../utils/ThreadDB'
 
-import "./single.css"
+import "./singleNewsPost.css"
+
 class SingleNewsPost extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            loaded: false,
+            record: {},
+            newsPostPhoto: '',
+            title: '',
+            postDate: '',
+            author: '',
+            category: '',
+            body: '',
+            id: ''
+        }
+    }
+
+    componentDidMount() {
+        this.loadData()
+        .then((result) => {
+            console.log('result', result)
+            if(result.published === true) {
+                this.setState({
+                    loaded:true,
+                    title: result.title,
+                    postDate: result.postDate,
+                    id: result._id,
+                    author: result.author,
+                    category: result.category,
+                    body: result.body,
+                })
+            }
+        })
+    }
+
+    async loadData() {
+        let newsPostId = this.props.history.location.pathname.slice(2)
+        console.log('newspostid', newsPostId)
+        console.log('news posts here and ', this.props.newsPosts)
+        let record = await retrieveAppRecord(newsPostId, 'NewsPost')
+        console.log('post record', record)
+        if(record !== undefined) {
+            return record
+        } else {
+            console.log('no record')
+            return record
+        }
+    
+    }
+
     render() {
         let {
             newsPosts,
             login,
-            load,
-            history,
+            loaded,
             back,
             backShowHandler,
-            backCancelHandler
+            backCancelHandler,
+            accountId,
+            history,
+            contract
         } = this.props
-        if (!load) { return <Spinners /> }
-        if (load && !login) { return <Redirect to="/" /> }
-        let newsPostId = history.location.hash.slice(1)
-        let newsPostTitle = history.location.pathname.slice(2)
-        let newsPost = newsPosts.filter((post) => post.newsPostId === newsPostId && post.newsPostTitle === newsPostTitle)[0]
-        if (!newsPost) { return <Redirect to="/account" /> }
 
-        let Post = <CreationSingle
-                newsPostDate={newsPost.newsPostDate}
-                />
+        let { id, title, body, postDate, category, author, newsPostPhoto } = this.state
+
+        if (!loaded) { return <Container className='main'><Spinners /></Container> }
+        if (loaded && !login) { return <Redirect to="/" /> }
+        if (!newsPosts) { return <Redirect to="/submit-news" /> }
+        
         return (
-            <div>
-                <SharePage
-                    newsPostTitle={newsPost.newsPostTitle}
-                    newsPostDate={newsPost.newsPostDate}
-                    backCancelHandler={backCancelHandler}
-                    back={back}
-                    newsPostId={newsPost.newsPostId}/>
-                <div>
-                    <h2>Checkout {newsPost.newsPostTitle}!</h2>
-                    <div>
-                        {Post}
-                    </div>
-                    <div>
+            <Container>                
+                    <FullNewsPost
+                        newsPostDate={postDate}
+                        newsPostTitle={title}
+                        newsPostBody={body}
+                        newsPostId={id}
+                        author={author}
+                        category={category}
+                        accountId={accountId}
+                        history={history}
+                        contract={contract}
+                    />
+                        
+                    <Segment>
+                        <Share
+                            newsPostTitle={title}
+                            newsPostDate={postDate}
+                            backCancelHandler={backCancelHandler}
+                            back={back}
+                            newsPostId={id}
+                        />
                         <SendAndShare backShowHandler={backShowHandler} />
-                    </div>
-                </div>
-            </div>
+                    </Segment>
+                
+            </Container>
         )
+        
     }
 
 }
 
 export default withRouter(SingleNewsPost)
-
-
-
-const SendAndShare = ({ backShowHandler }) => {
-    let style = { display: "flex", flexDirection: "column", margin: "auto" }
-    return (
-        <div>
-          
-            <span style={style}>
-                <Share clicked={backShowHandler} />
-            </span>
-        </div>
-    )
-}
-
-const Share = ({ clicked }) => {
-    let share = (
-            <div>
-                <p className="text">Nice Post - share the knowledge:</p>
-                <span className="share-icons"><GrTwitter className="flaticon" /><GrFacebook className="flaticon" /></span>
-            </div>
-       )
-    return (
-        <button className="sharecard" onClick={clicked}>
-            {share}
-        </button>
-    )
-}

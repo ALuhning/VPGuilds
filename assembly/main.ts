@@ -480,6 +480,7 @@ export function setNewsPostData(post: NewsPost): void {
     _postId.push(post.newsPostId); 
     _postId.push(post.newsPostAuthor);
     _postId.push(post.newsVerificationHash);
+    _postId.push(post.published);
     logging.log(_postId)
   } else {
     let present = false;
@@ -493,6 +494,7 @@ export function setNewsPostData(post: NewsPost): void {
     _postId.push(post.newsPostId);
     _postId.push(post.newsPostAuthor);
     _postId.push(post.newsVerificationHash);
+    _postId.push(post.published);
     }
   }
   let newsPostData = new NewsPostMetaData();
@@ -547,24 +549,28 @@ function decrementAuthorNewsPosts(from: string, tokenId: string): void {
 
 export function postNewsPost(
   newsPostId: string,
-  newsVerificationHash: string
+  newsVerificationHash: string,
+  published: string
 ): NewsPost {
   logging.log("posting news post");
   return _postNewsPost(
     newsPostId,
-    newsVerificationHash
+    newsVerificationHash,
+    published
   );
 }
 
 function _postNewsPost(
   newsPostId: string,
-  newsVerificationHash: string
+  newsVerificationHash: string,
+  published: string
 ): NewsPost {
   logging.log("start posting news post");
   let post = new NewsPost();
   post.newsPostAuthor = Context.sender;
   post.newsPostId = newsPostId;
   post.newsVerificationHash = newsVerificationHash;
+  post.published = published;
   logging.log('setting news post data');
   setNewsPostData(post);
   logging.log('setting news post by author');

@@ -3,40 +3,41 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import AppBuilder from './frontend/container';
 import getConfig from './config.js';
-import { connect, keyStores, WalletConnection, Account } from 'near-api-js';
+import { connect, Contract, keyStores, WalletConnection, WalletAccount, Account } from 'near-api-js'
 import { initiateDB, initiateAppDB } from './frontend/utils/ThreadDB';
 
 import 'semantic-ui-css/semantic.min.css';
 
 const nearConfig = getConfig(process.env.NODE_ENV || 'development')
+console.log('nearconfig', nearConfig)
 
 // Initializing contract
 async function initContract() {
 
+// Initialize connection to the NEAR testnet
 const near = await connect(Object.assign({ deps: { keyStore: new keyStores.BrowserLocalStorageKeyStore() } }, nearConfig))
 
-console.log('near', near)
+// Initializing Wallet based Account. It can work with NEAR testnet wallet that
+// is hosted at https://wallet.testnet.near.org
+window.walletConnection = new WalletConnection(near)
+console.log('wallet connection', window.walletConnection)
 
-    // Needed to access wallet login
-//    window.walletAccount = new nearlib.WalletAccount(window.near);
-    window.walletConnection = await new WalletConnection(near, 'vpguild')  
-    console.log('window.walletconnection', window.walletConnection)
-    // Getting the Account ID. If unauthorized yet, it's just empty string.
+// Getting the Account ID. If still unauthorized, it's just empty string
+window.accountId = window.walletConnection.getAccountId()
+console.log('window accountId', window.accountId)
+
+window.walletAccount = new WalletAccount(near)
+console.log('wallet account', window.walletAccount)
    
-    window.accountId = window.walletConnection.getAccountId()
-    
-
-    // Initializing our contract APIs by contract name and configuration.
-    if(window.accountId === '') {
-      window.acct = new Account(window.walletConnection, window.accountId);
-      console.log('window.acct no exist', window.acct)
-    } else {
-     window.acct = await near.account(window.accountId)
-    }
+if(window.accountId === '') {
+    window.acct = new Account(window.walletConnection)
+    console.log('window acct', window.acct)
+} else {
+    window.acct = await near.account(window.accountId)
+}
   
-console.log('nearconfig', nearConfig)
-    
-      window.contract = await near.loadContract(nearConfig.contractName, 
+// Initializing our contract APIs by contract name and configuration.   
+      window.contract = await new Contract(window.walletConnection.account(), nearConfig.contractName, 
       { 
         // Change methods can modify the state. But you don't receive the returned value when called.
         changeMethods: [
@@ -91,20 +92,21 @@ console.log('nearconfig', nearConfig)
         ],
        
         // Sender is the account ID to initialize transactions.
-        sender: window.accountId
+        //sender: window.accountId
       }
     );
 
     // initiate database if there is a user (Textile)
     if(window.accountId !== '') {
-      await initiateDB()
-      await initiateAppDB()
+      window.userdb = await initiateDB()
+      window.appdb = await initiateAppDB()
     }
     console.log('window.contract', window.contract)
+    
 }
 
 window.nearInitPromise = initContract().then(() => {
-  ReactDOM.render(<AppBuilder contract={window.contract} wallet={window.walletConnection} account={window.acct}/>,
+  ReactDOM.render(<AppBuilder contract={window.contract} wallet={window.walletConnection} account={window.acct} />,
     document.getElementById('root')
   );
 }).catch(console.error)

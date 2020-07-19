@@ -81,6 +81,7 @@ export class NewsPost {
     newsPostAuthor: string;
     newsPostId: string;
     newsVerificationHash: string;
+    published: string;
 }
 
 @nearBindgen

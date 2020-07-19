@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom';
-import { Progress } from 'semantic-ui-react';
+import { Progress, Container } from 'semantic-ui-react';
 
 import './posting.css';
 
@@ -17,12 +17,13 @@ class Posting extends Component {
     componentDidMount() {
         this.loadData().then(() => {
             this.setState({loaded:true})
-            let {newsPostId, newsVerificationHash, handleChange, contract, newsPosts} = this.props
-            console.log("**newsPostId", newsPostId, "**newsVerificationhash", newsVerificationHash)
+            let {newsPostId, newsVerificationHash, published, handleChange, contract, newsPosts} = this.props
+            console.log("**newsPostId", newsPostId, "**newsVerificationhash", newsVerificationHash, "**published", published)
             if(newsPostId && newsVerificationHash) {
             contract.postNewsPost({
                 newsPostId: newsPostId,
                 newsVerificationHash: newsVerificationHash,
+                published: published.toString()
             }, process.env.DEFAULT_GAS_VALUE).then(response => {
                 console.log("[posting.js] posting", response)
                 let newsPost = response
@@ -44,18 +45,20 @@ class Posting extends Component {
     }
         
     render() {
-        let { newsPostTitle, login, load, newsPostId } = this.props
+        let { newsPostTitle, login, loaded, newsPostId } = this.props
        
-        if (load && !login) {return <Redirect to="/" />}
-       // if (!this.state.running) { return <Redirect to={{ pathname: "/@" + newsPostTitle, hash: newsPostId }} /> }
-        if (!this.state.running) { return <Redirect to="/" /> }
+        if (loaded && !login) {return <Redirect to="/" />}
+        if (!this.state.running) { return <Redirect to={{ pathname: "/@" + newsPostTitle, hash: newsPostId }} /> }
+       // if (!this.state.running) { return <Redirect to="/" /> }
         return (
-                <div>
+                
+                <Container className="main">
                     <h3>Posting News...</h3>
                     <div className="logging-screen">
                         <Progress percent={this.state.percent} autoSuccess />
                     </div>
-                </div>
+                </Container>
+                
             )
     }
 }
