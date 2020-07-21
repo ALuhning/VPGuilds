@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Container, Segment, Header, Label, Image, Icon } from 'semantic-ui-react';
 import { deleteAppRecord } from '../../../utils/ThreadDB'
+import CommentSubmitForm from '../../common/CommentSubmit/commentSubmit'
+import Comment from '../Comments/comment'
 
 class FullNewsPost extends Component {
     constructor(props) {
@@ -37,7 +39,36 @@ class FullNewsPost extends Component {
 
     render() { 
 
-        let { newsPostDate, newsPostTitle, newsPostId, newsPostBody, author, category } = this.props
+        let { newsPostDate, newsPostTitle, newsPostId, newsPostBody, author, category, comments, handleChange, handleDateChange } = this.props
+        console.log('comments', comments)
+        let Comments = 'loading'
+       // if (comments && comments.length === 0) { return <Redirect to="/" /> }
+        
+        if (comments && comments.length > 0) {
+            Comments = comments.map(comment => {
+               console.log('comments map', comment)
+               console.log('comment0', comment[0])
+               console.log('comment1', comment[1])
+               console.log('comment2', comment[2])
+               console.log('comment3', comment[3])
+               console.log('comment4', comment[4])
+               console.log('newspostId', newsPostId)
+               if(comment[0]!='' && comment[1] == newsPostId && comment[4] === 'true') {
+                return (
+                        
+                        <Comment
+                            key={comment[0]}
+                            commentId={comment[0]}
+                            contract={contract}
+                            comments={comments}
+                            handleChange={handleChange}
+                            accountId={accountId}
+                            />
+                       
+                    )
+               }
+            })
+        }    
    
    
     return (
@@ -68,7 +99,15 @@ class FullNewsPost extends Component {
             
         
         </div>
-              
+        <Segment>
+            {Comments}
+        </Segment>
+        <Segment>
+            <CommentSubmitForm 
+                handleChange={handleChange}
+                handleDateChange={handleDateChange}
+            />
+        </Segment>
         </Container>
     )
     }

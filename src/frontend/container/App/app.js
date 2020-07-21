@@ -15,6 +15,7 @@ import Home from '../../components/Home/home';
 import HeaderNav from '../../components/Header/header';
 import News from '../../components/News/news'
 import Posting from '../../components/News/Posting/posting'
+import Commenting from '../../components/common/CommentSubmit/commenting'
 import Admin from '../../components/Admin/admin'
 import Members from '../../components/Members/members'
 import SingleNewsPost from '../../components/News/SingleNewsPost/singleNewsPost'
@@ -47,6 +48,17 @@ class App extends Component {
             newsVerificationHash: '',
             newsPosts: [],
             published: false,
+
+            // Comments
+            comments: [],
+            commentId: '',
+            commentParent: '',
+            commentDate: new Date().getTime(),
+            commentBody: '',
+            commentPhotos: [],
+            commentAuthor: '',
+            commentVerificationHash: '',
+            commentPublished: false,
 
             // Consolidation Pages
             allNewsPosts: [],
@@ -113,6 +125,27 @@ class App extends Component {
             console.log(err);
         })
 
+        // fill comments array
+        this.getAllCommentsByAllAuthors().then(res => {
+        console.log('comment res', res);
+        this.setState({
+            comments: res.comments
+        });
+
+        if (res == null ) {
+            this.setState({
+                loaded: true
+            });
+        } else {
+            this.setState({
+                comments: res.comments,
+                loaded: true
+            });
+        }
+    }).catch(err => {
+        console.log(err);
+    })
+
         // fill members array
         this.getAllMembers().then(res => {
             console.log('member res', res);
@@ -144,6 +177,10 @@ class App extends Component {
 
     getAllNewsPostsByAllAuthors = () => {
         return this.props.contract.getAllNewsPosts();
+    }
+
+    getAllCommentsByAllAuthors = () => {
+        return this.props.contract.getAllComments();
     }
     
     getAllMembers = () => {
@@ -190,10 +227,10 @@ class App extends Component {
     render() {
         let { loggedIn, loaded, backDrop, back, accountId, user, role, roles,
         newsPostId, newsPostAuthor, newsPostBody, newsPostCategory, newsPostTitle, newsPostPhotos, 
-        newsVerificationHash, published, newsPostDate, newsPosts, members } = this.state
+        newsVerificationHash, published, newsPostDate, newsPosts, members,
+        commentId, commentParent, commentPublished, commentVerificationHash, comments } = this.state
 
         let { contract, account } = this.props
-        console.log('appaccount', account)
        
         console.log('logged in', loggedIn)
         return (
@@ -218,8 +255,6 @@ class App extends Component {
                             loaded={loaded}
                             newsPosts={newsPosts}
                             accountId={accountId}
-                        
-
                         />
                     }
                     />
@@ -295,6 +330,26 @@ class App extends Component {
                     />
 
                     <Route
+                    exact
+                    path='/commenting'
+                    render={() => 
+                        <Commenting
+                            login={loggedIn}
+                            loaded={loaded}
+                            accountId={accountId}
+                            handleChange={this.handleChange}
+                            handleDateChange={this.handleDateChange}
+                            contract={contract}
+                            commentId={commentId}
+                            commentParent={commentParent}
+                            commentVerificationHash={commentVerificationHash}
+                            commentPublished={commentPublished}
+                            comments={comments}
+                        />
+                    }
+                    />
+
+                    <Route
                         exact
                         path='/@:topicId'
                         
@@ -312,8 +367,9 @@ class App extends Component {
                                 backShowHandler={this.backShowHandler}
                                 backCancelHandler={this.backCancelHandler}
                                 handleChange={this.handleChange}
+                                handleDateChange={this.handleDateChange}
                                 accountId={accountId}
-                                history={history}
+                                comments={comments}
                             />
                         }
                     />

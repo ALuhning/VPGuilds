@@ -4,6 +4,8 @@ import { Client } from '@textile/hub';
 import { encryptSecretBox, decryptSecretBox, parseEncryptionKeyNear } from './Encryption'
 
 const appId = process.env.APPID;
+let appDatabase;
+let userDatabase;
 
 async function getAppIdentity(appId) {
       const type = 'org';
@@ -75,7 +77,7 @@ async function getIdentity(accountId) {
     const type = 'member'
     /** Restore any cached user identity first */
     const cached = localStorage.getItem(appId + ":" + process.env.THREADDB_IDENTITY_STRING)
-    
+    console.log('cached', cached)
     if (cached !== null) {
     /**Convert the cached identity string to a Libp2pCryptoIdentity and return */
     return Libp2pCryptoIdentity.fromString(cached)
@@ -85,11 +87,12 @@ async function getIdentity(accountId) {
     if (cached === null) {
             try {
                 let tempIdentity = await Libp2pCryptoIdentity.fromRandom()
-
+                console.log('tempidentity', tempIdentity)
                 const loginCallback = loginWithChallenge(tempIdentity);
                 const db = Client.withUserAuth(loginCallback);
+                console.log('db', db)
                 const token = await db.getToken(tempIdentity)
-
+                console.log('tempid', token)
                 if(token) {
                 /**Get encryption key*/
                 let loginCallback = loginWithChallengeEK(tempIdentity);    
@@ -185,7 +188,6 @@ async function getThreadId(accountId) {
 const loginWithChallengeEK = (identity) => {
     // we pass identity into the function returning function to make it
     // available later in the callback
- //   return () => {
       return new Promise((resolve, reject) => {
         /** 
          * Configured for our development server
@@ -229,7 +231,6 @@ const loginWithChallengeEK = (identity) => {
         }
         
       });
-  //  }
 
   }
 
@@ -253,7 +254,7 @@ const loginWithChallenge = (identity) => {
         socket.onopen = () => {
           /** Get public key string */
           const publicKey = identity.public.toString();
-  
+          console.log('publickey', publicKey)
           /** Send a new token request */
           socket.send(JSON.stringify({
             pubkey: publicKey,
@@ -263,6 +264,7 @@ const loginWithChallenge = (identity) => {
           /** Listen for messages from the server */
           socket.onmessage = async (event) => {
             const data = JSON.parse(event.data)
+            console.log('data', data)
             switch (data.type) {
               /** Error never happen :) */
               case 'error': {
@@ -372,6 +374,7 @@ const loginWithChallenge = (identity) => {
     console.log('Verified App on Textile API');
     console.log('new app client', appdb);
     await appdb.getToken(identity)
+    appDatabase = appdb;
   //  const token = await db.getToken(identity)
 
   //  const cachedToken = localStorage.getItem(appId + ":" + process.env.THREADDB_APPTOKEN_STRING)
@@ -410,7 +413,7 @@ export async function initiateDB() {
     const threadId = await getThreadId(window.accountId);
     const db = await tokenWakeUp(type)
     await db.getToken(identity)
- 
+    userDatabase = db
     console.log('Verified on Textile API');
     console.log('db', db)
    
@@ -433,34 +436,34 @@ export async function initiateDB() {
 
 
 export async function initiateAppCollection(collection, schema) {
-  let type = 'app'
-  const db = await tokenWakeUp(type)
+ // let type = 'app'
+ // const db = await tokenWakeUp(type)
   
   try {
-      const r = await db.find(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, {})
+      const r = await appDatabase.find(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, {})
       console.log('r :', r)
       console.log('found :', r.instancesList.length)    
       return r
   } catch (err) {
       console.log(err);
-      await db.newCollection(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, schema);
+      await appDatabase.newCollection(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, schema);
       console.log('New collection created', collection);
   }
 }
 
 
 export async function initiateCollection(collection, schema) {
-  let type = 'member'
-  const db = await tokenWakeUp(type)
+//  let type = 'member'
+//  const db = await tokenWakeUp(type)
 
     try {
-        const r = await db.find(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)), collection, {})
+        const r = await userDatabase.find(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)), collection, {})
         console.log('r :', r)
         console.log('found :', r.instancesList.length)    
         return r
     } catch (err) {
         console.log(err);
-        await db.newCollection(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)), collection, schema);
+        await userDatabase.newCollection(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)), collection, schema);
         console.log('New collection created', collection);
     }
 }
@@ -506,12 +509,12 @@ export async function tokenWakeUp(type) {
 }
 
 export async function retrieveAppRecord(id, collection) {
-  let type = 'app'
-  const db = await tokenWakeUp(type)
-
+//  let type = 'app'
+//  const db = await tokenWakeUp(type)
+  
   let obj
   try {
-      let r = await db.findByID(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, id)
+      let r = await appDatabase.findByID(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, id)
       console.log('record retrieved', r.instance);
       obj = r.instance
   } catch (err) {
@@ -556,12 +559,12 @@ export async function retrieveAppRecords(records, appdb, collection) {
  }
 
 export async function retrieveRecord(id, collection) {
-    let type = 'member'
-    const db = await tokenWakeUp(type)
+//    let type = 'member'
+//    const db = await tokenWakeUp(type)
 
     let obj
     try {
-        let r = await db.findByID(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)), collection, id)
+        let r = await userDatabase.findByID(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)), collection, id)
         console.log('record retrieved', r.instance);
         obj = r.instance
     } catch (err) {
@@ -572,11 +575,11 @@ export async function retrieveRecord(id, collection) {
 }
 
 export async function createAppRecord(collection, record) {
-    let type = 'app'
-    const db = await tokenWakeUp(type)
+//    let type = 'app'
+//    const db = await tokenWakeUp(type)
 
   try {
-     await db.create(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, record)        
+     await appDatabase.create(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, record)        
      console.log('success app record created')
   } catch (err) {
       console.log('error', err)
@@ -585,11 +588,11 @@ export async function createAppRecord(collection, record) {
 }
 
 export async function createRecord(collection, record) {
-  let type = 'member'
-  const db = await tokenWakeUp(type)
+//  let type = 'member'
+//  const db = await tokenWakeUp(type)
 
     try {
-       await db.create(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)), collection, record)        
+       await userDatabase.create(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)), collection, record)        
        console.log('success record created')
     } catch (err) {
         console.log('error', err)
@@ -599,11 +602,11 @@ export async function createRecord(collection, record) {
 
 
 export async function deleteAppRecord(id, collection) {
-  let type = 'app'
-  const db = await tokenWakeUp(type)
+//  let type = 'app'
+//  const db = await tokenWakeUp(type)
 
   try {
-      await db.delete(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, [id])
+      await appDatabase.delete(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, [id])
       console.log('app record deleted')
   } catch (err) {
       console.log('error', err)
@@ -613,11 +616,11 @@ export async function deleteAppRecord(id, collection) {
 
 
 export async function deleteRecord(id, collection) {
-  let type = 'member'
-  const db = await tokenWakeUp(type)
+ // let type = 'member'
+ // const db = await tokenWakeUp(type)
 
     try {
-        await db.delete(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)), collection, [id])
+        await userDatabase.delete(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)), collection, [id])
         console.log('record deleted')
     } catch (err) {
         console.log('error', err)

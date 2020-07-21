@@ -13,25 +13,22 @@ import 'react-quill/dist/quill.snow.css';
 
 import { commentSchema } from '../../../schemas/Comment';
 
-class NewsSubmitForm extends Component {
+class CommentSubmitForm extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            newsPostId: '',
-            newsPostTitle: '',
-            newsPostDate: new Date().getTime(),
-            newsPostAuthor: '',
-            newsPostBody: '',
-            newsPostCategory: '',
-            newsPostPhotos: [],
-            newsVerificationHash: '',
-            published: false,
+            commentParent: '',
+            commentSubject: '',
+            commentDate: new Date().getTime(),
+            commentAuthor: '',
+            commentBody: '',
+            commentPhotos: [],
+            commentVerificationHash: '',
+            commentPublished: false,
             loaded: false,
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.onDrop = this.onDrop.bind(this);
-
-        
     }
 
     componentDidMount() {
@@ -42,113 +39,116 @@ class NewsSubmitForm extends Component {
 
 
     async loadData() {
-        this.setState({newsPostAuthor: this.props.accountId})
+        this.setState({
+            commentAuthor: this.props.accountId,
+            commentParent: this.props.history.location.pathname.slice(2)
+        })
     }
 
 
    async onDrop(pictureFiles, pictureDataURLs) {
         this.setState({
-               newsPostPhotos: (this.state.newsPostPhotos).concat(pictureDataURLs)
+               commentPhotos: (this.state.commentPhotos).concat(pictureDataURLs)
            })
     }
 
     handleDateChange = (event) => {
         console.log('event', event)
         this.setState({ 
-            newsPostDate: event
+            commentDate: event
         })
-        this.props.handleDateChange({ name: "newsPostDate", value: event });
+        this.props.handleDateChange({ name: "commentDate", value: event });
     }
 
 
-    handleTitleChange = (event) => {
+    handleSubjectChange = (event) => {
         let value = event.target.value;
         this.setState({ 
-            newsPostTitle: value
+            commentSubject: value
         })
-        this.props.handleChange({ name: "newsPostTitle", value })
+        this.props.handleChange({ name: "commentSubject", value })
     }
 
     handlePublishToggle = () => {
-        const published = !(this.state.published)
+        const published = !(this.state.commentPublished)
         this.setState({
-            published: published
+            commentPublished: published
         })
-        this.props.handleChange( {name: "published", published })
+        this.props.handleChange( {name: "commentPublished", published })
     }
 
 
     handleBodyChange = (event) => {
         this.setState({ 
-            newsPostBody: event
+            commentBody: event
         })
-        this.props.handleChange({ name: "newsPostBody", event })
+        this.props.handleChange({ name: "commentBody", event })
     }
 
     async generateId() {
         let buf = Math.random([0, 999999999]);
         let b64 = btoa(buf);
         this.setState({
-            newsPostId: b64.toString()
+            commentId: b64.toString()
         })
-        console.log('newsPostId :', this.state.newsPostId)
+        console.log('commentId :', this.state.commentId)
     }
 
     async generateVerificationHash() {
-        let data = (this.state.newsPostId).concat(
-            ',',this.state.newsPostAuthor,
-            ',',this.state.newsPostDate,
-            ',',this.state.newsPostCategory,
-            ',',this.state.newsPostBody,
-            ',',this.state.newsPostPhotos,
-            ',',this.state.newsPostTitle,
+        let data = (this.state.commentId).concat(
+            ',',this.state.commentAuthor,
+            ',',this.state.commentDate,
+            ',',this.state.commentParent,
+            ',',this.state.commentBody,
+            ',',this.state.commentPhotos,
+            ',',this.state.commentSubject,
+            ',',this.state.commentPublished
         )
         console.log(data)
-        let verificationHash = await generateHash(data);
+        let commentVerificationHash = await generateHash(data);
         this.setState({
-            newsVerificationHash: verificationHash.toString()
+            commentVerificationHash: commentVerificationHash.toString()
         })
-        console.log('newsVerification hash ', this.state.newsVerificationHash)
+        console.log('commentVerification hash ', this.state.commentVerificationHash)
     }
 
     async handleSubmit(e) {
         e.preventDefault();
        await this.generateId();
        await this.generateVerificationHash();
-       await initiateCollection('NewsPost', newsPostSchema)
-       await createRecord('NewsPost', [
+       await initiateCollection('Comment', commentSchema)
+       await createRecord('Comment', [
                   {
-                    _id: this.state.newsPostId,
-                    title: this.state.newsPostTitle,
-                    body: this.state.newsPostBody,
-                    category: this.state.newsPostCategory,
-                    verificationHash: this.state.newsVerificationHash,
-                    author: this.state.newsPostAuthor,
-                    newsPostPhotos: this.state.newsPostPhotos,
-                    postDate: this.state.newsPostDate,
-                    published: this.state.published
+                    _id: this.state.commentId,
+                    parent: this.state.commentParent,
+                    subject: this.state.commentSubject,
+                    body: this.state.commentBody,
+                    verificationHash: this.state.commentVerificationHash,
+                    author: this.state.commentAuthor,
+                    postDate: this.state.commentDate,
+                    published: this.state.commentPublished
                   }
             ]);
-        if(this.state.published) {
-            await initiateAppCollection('NewsPost', newsPostSchema)
-            await createAppRecord('NewsPost', [
+        if(this.state.commentPublished) {
+            await initiateAppCollection('Comment', commentSchema)
+            await createAppRecord('Comment', [
                 {
-                    _id: this.state.newsPostId,
-                    title: this.state.newsPostTitle,
-                    body: this.state.newsPostBody,
-                    category: this.state.newsPostCategory,
-                    verificationHash: this.state.newsVerificationHash,
-                    author: this.state.newsPostAuthor,
-                    newsPostPhotos: this.state.newsPostPhotos,
-                    postDate: this.state.newsPostDate,
-                    published: this.state.published
+                    _id: this.state.commentId,
+                    parent: this.state.commentParent,
+                    subject: this.state.commentSubject,
+                    body: this.state.commentBody,
+                    verificationHash: this.state.commentVerificationHash,
+                    author: this.state.commentAuthor,
+                    postDate: this.state.commentDate,
+                    published: this.state.commentPublished
                 }
             ]);
         }
-            this.props.handleChange({ name: 'newsPostId', value: this.state.newsPostId})
-            this.props.handleChange({ name: 'newsVerificationHash', value: this.state.newsVerificationHash})
-            this.props.handleChange({ name: 'published', value: this.state.published})
-            this.props.history.push("/posting")
+            this.props.handleChange({ name: 'commentId', value: this.state.commentId})
+            this.props.handleChange({ name: 'commentParent', value: this.state.commentParent})
+            this.props.handleChange({ name: 'commentVerificationHash', value: this.state.commentVerificationHash})
+            this.props.handleChange({ name: 'commentPublished', value: this.state.commentPublished})
+            this.props.history.push("/commenting")
     }
     modules = {
         toolbar: [
@@ -178,28 +178,29 @@ class NewsSubmitForm extends Component {
                     <Segment.Group horizontal>
                         <Segment>
                             <Form.Field
-                                label="Post Title"
+                                label="Comment Subject"
                                 control={Input}
-                                name="NewsPostTitle"
+                                name="commentSubject"
                                 type="text"
-                                placeholder="Title"
-                                onChange={this.handleTitleChange}
-                                value={this.state.newsPostTitle}
+                                placeholder="Subject"
+                                onChange={this.handleSubjectChange}
+                                value={this.state.commentSubject}
                                 required
                         />
                         </Segment>
                         <Segment.Group>
                             <DatePicker
                                 className="datepicker"
-                                selected={this.state.newsPostDate}
+                                selected={this.state.commentDate}
                                 onChange={this.handleDateChange}
-                                name="NewsPostDate"
+                                name="commentDate"
                                 showTimeSelect
                                 timeFormat="HH:mm"
                                 timeIntervals={15}
                                 timeCaption="time"
                                 dateFormat="MM/dd/yyyy h:mm aa"
                                 required
+                                hidden
                             />
                             <Segment.Inline>
                                 <label>Published</label>
@@ -214,8 +215,8 @@ class NewsSubmitForm extends Component {
                                 modules={this.modules}
                                 formats={this.formats}
                                 onChange={this.handleBodyChange}
-                                value={this.state.newsPostBody}
-                                style={{height:'400px'}}
+                                value={this.state.commentBody}
+                                style={{height:'200px'}}
                                 required
                             />
                     <Segment basic>   
@@ -230,4 +231,4 @@ class NewsSubmitForm extends Component {
     }
 }
 
-export default withRouter(NewsSubmitForm)
+export default withRouter(CommentSubmitForm)

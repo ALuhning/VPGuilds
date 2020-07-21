@@ -14,7 +14,7 @@ import {  UserIdentity,
           App, AppMetaData,
           Member, MemberMetaData, MembersArray,          
           NewsPost, NewsPostArray, NewsPostMetaData,
-          Comment, CommentMetaData,
+          Comment, CommentMetaData, CommentArray
           } from "./model";
 
 // Collections where we store data
@@ -443,7 +443,7 @@ export function setNewsPostsByAuthor(post: NewsPost): void {
 }
 
 
-// Methods for Consolidated News Posts
+// Methods for Consolidated Lists
 export function getAllNewsPosts(): NewsPostArray {
   logging.log('retrieving news posts');
   let _newsPostList = new Array<string[]>();
@@ -456,6 +456,22 @@ export function getAllNewsPosts(): NewsPostArray {
   let nl = new NewsPostArray();
   nl.newsPosts = _newsPostList;
   nl.len = _newsPostList.length;
+  logging.log(nl)
+  return nl;
+}
+
+export function getAllComments(): CommentArray {
+  logging.log('retrieving comments');
+  let _commentList = new Array<string[]>();
+  logging.log(comments);
+  for(let i: i32 = 0; i < comments.length; i++) {
+    let _comment = getCommentData(comments[i]);
+    logging.log(_comment)
+    _commentList.push(_comment);
+  }
+  let nl = new CommentArray();
+  nl.comments = _commentList;
+  nl.len = _commentList.length;
   logging.log(nl)
   return nl;
 }
@@ -489,6 +505,8 @@ export function deleteNewsPostProfile(tokenId: string): Array<string> {
 
 function decrementAuthorNewsPosts(from: string, tokenId: string): void {
   let _postId = getNewsPostsByAuthor(from);
+  logging.log('postId')
+  logging.log(_postId)
   for (let i=0; i<_postId.length; i++) {
     if (tokenId == _postId[i]) {
       _postId.splice(i, 1);
@@ -576,7 +594,7 @@ function _postNewsPost(
   logging.log('setting news post by author');
   setNewsPostsByAuthor(post);
   logging.log('adding news post id to vector')
-  _addNewNewsPost(newsPostId);
+  _addNewNewsPost(post.newsPostId);
   logging.log("posted news post");
   return post;
 }

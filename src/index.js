@@ -71,7 +71,7 @@ if(window.accountId === '') {
         'setCommentData',
         'setCommentDataByAuthor',
         'deleteComment',
-        'deleteCommentProfile',
+        'deleteCommentProfile'
       ],
 
         // View methods are read only. They don't modify the state, but usually return some value.
@@ -100,6 +100,7 @@ if(window.accountId === '') {
           // Comments Views
           'getCommentData',
           'getCommentsByAuthor',
+          'getAllComments'
         ],
        
         // Sender is the account ID to initialize transactions.
@@ -109,8 +110,8 @@ if(window.accountId === '') {
 
     // initiate database if there is a user (Textile)
     if(window.accountId !== '') {
-      window.userdb = await initiateDB()
-      window.appdb = await initiateAppDB()
+      await initiateDB()
+      await initiateAppDB()
     }
     console.log('window.contract', window.contract)
     

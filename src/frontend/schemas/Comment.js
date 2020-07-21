@@ -8,7 +8,10 @@ export const commentSchema = {
       _id: {
         type: 'string',
       },
-      title: {
+      parent: {
+        type: 'string',
+      },
+      subject: {
         type: 'string',
       },
       body: {

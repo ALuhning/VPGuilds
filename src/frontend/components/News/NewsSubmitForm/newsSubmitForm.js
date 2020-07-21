@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import { BsCardHeading, BsFillCalendarFill, BsArrowUp, BsFillClockFill } from "react-icons/bs";
 import { Container, Form, Input, Button, TextArea, Segment, Grid, Checkbox } from 'semantic-ui-react';
 import DatePicker from 'react-datepicker';
 import ImageUploader from 'react-images-upload';

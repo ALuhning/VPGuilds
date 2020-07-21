@@ -1,0 +1,16 @@
+.comment {
+    width: 80%;
+}
+
+div.ui.secondary.segment.commentInfo {
+    padding: 2px;
+}
+
+img {
+    max-width: 100%;
+}
+
+.ui.tag.label.category {
+    float:right;
+    margin-top:5px;
+}

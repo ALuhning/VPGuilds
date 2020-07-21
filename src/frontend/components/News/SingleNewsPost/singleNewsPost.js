@@ -22,7 +22,8 @@ class SingleNewsPost extends Component {
             author: '',
             category: '',
             body: '',
-            id: ''
+            id: '',
+            published: false,
         }
     }
 
@@ -39,6 +40,7 @@ class SingleNewsPost extends Component {
                     author: result.author,
                     category: result.category,
                     body: result.body,
+                    published: result.published,
                 })
             }
         })
@@ -69,7 +71,10 @@ class SingleNewsPost extends Component {
             backCancelHandler,
             accountId,
             history,
-            contract
+            contract,
+            handleChange,
+            handleDateChange,
+            comments
         } = this.props
 
         let { id, title, body, postDate, category, author, newsPostPhoto } = this.state
@@ -90,6 +95,9 @@ class SingleNewsPost extends Component {
                         accountId={accountId}
                         history={history}
                         contract={contract}
+                        handleChange={handleChange}
+                        handleDateChange={handleDateChange}
+                        comments={comments}
                     />
                         
                     <Segment>
