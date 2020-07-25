@@ -71,7 +71,11 @@ if(window.accountId === '') {
         'setCommentData',
         'setCommentDataByAuthor',
         'deleteComment',
-        'deleteCommentProfile'
+        'deleteCommentProfile',
+
+        //Profile Management
+        'addProfile',
+        'deleteProfile',
       ],
 
         // View methods are read only. They don't modify the state, but usually return some value.
@@ -100,7 +104,11 @@ if(window.accountId === '') {
           // Comments Views
           'getCommentData',
           'getCommentsByAuthor',
-          'getAllComments'
+          'getAllComments',
+
+          // Profiles Views
+          'getProfileData',
+          'getAllProfiles',
         ],
        
         // Sender is the account ID to initialize transactions.

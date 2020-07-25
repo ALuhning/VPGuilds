@@ -45,6 +45,7 @@ export class Member {
     memberRole: string;
     memberJoinDate: string;
     status: string;
+    profilePrivacy: string;
 }
 
 @nearBindgen
@@ -114,5 +115,26 @@ export class CommentMetaData {
 @nearBindgen
 export class CommentArray {
     comments: Array<string[]>;
+    len: i32;
+}
+
+// Profiles Models
+@nearBindgen
+export class Profile {
+    member: string;
+    profileId: string;
+    profileVerificationHash: string;
+    privacy: string;
+}
+
+@nearBindgen
+export class ProfileMetaData {
+    profileData: Array<string>;
+    len: i32;
+}
+
+@nearBindgen
+export class ProfileArray {
+    profiles: Array<string[]>;
     len: i32;
 }

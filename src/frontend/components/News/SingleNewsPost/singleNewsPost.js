@@ -6,7 +6,7 @@ import  Share from '../../Share/share';
 import { SendAndShare } from '../../Share/sendAndShare';
 import Spinners from '../../common/Spinner/spinner';
 import { Container, Segment } from 'semantic-ui-react';
-import { retrieveAppRecord } from '../../../utils/ThreadDB'
+import { retrieveAppRecord, retrieveRecord } from '../../../utils/ThreadDB'
 
 import "./singleNewsPost.css"
 
@@ -31,7 +31,7 @@ class SingleNewsPost extends Component {
         this.loadData()
         .then((result) => {
             console.log('result', result)
-            if(result.published === true) {
+            if(result) {
                 this.setState({
                     loaded:true,
                     title: result.title,
@@ -51,14 +51,16 @@ class SingleNewsPost extends Component {
         console.log('newspostid', newsPostId)
         console.log('news posts here and ', this.props.newsPosts)
         let record = await retrieveAppRecord(newsPostId, 'NewsPost')
+        if(!record) {
+            record = await retrieveRecord(newsPostId, 'NewsPost')
+        }
         console.log('post record', record)
         if(record !== undefined) {
             return record
         } else {
             console.log('no record')
-            return record
-        }
-    
+           
+        }    
     }
 
     render() {
@@ -77,7 +79,7 @@ class SingleNewsPost extends Component {
             comments
         } = this.props
 
-        let { id, title, body, postDate, category, author, newsPostPhoto } = this.state
+        let { id, title, body, postDate, category, author, published, newsPostPhoto } = this.state
 
         if (!loaded) { return <Container className='main'><Spinners /></Container> }
         if (loaded && !login) { return <Redirect to="/" /> }
@@ -98,6 +100,7 @@ class SingleNewsPost extends Component {
                         handleChange={handleChange}
                         handleDateChange={handleDateChange}
                         comments={comments}
+                        published={published}
                     />
                         
                     <Segment>

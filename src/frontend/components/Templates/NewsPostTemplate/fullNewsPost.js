@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { Container, Segment, Header, Label, Image, Icon } from 'semantic-ui-react';
-import { deleteAppRecord } from '../../../utils/ThreadDB'
+import { deleteAppRecord, deleteRecord } from '../../../utils/ThreadDB'
 import CommentSubmitForm from '../../common/CommentSubmit/commentSubmit'
 import Comment from '../Comments/comment'
+
+import './fullNewsPost.css'
 
 class FullNewsPost extends Component {
     constructor(props) {
@@ -11,6 +13,8 @@ class FullNewsPost extends Component {
             running: false
         }
     }
+
+   
    
     handleDelete = () => {
         let state = this.state.running
@@ -22,7 +26,8 @@ class FullNewsPost extends Component {
         let newsPostId = history.location.pathname.slice(2)
         this.handleDelete()
         if (author === accountId) {
-        deleteAppRecord(newsPostId, 'NewsPost') 
+        deleteAppRecord(newsPostId, 'NewsPost')
+        deleteRecord(newsPostId, 'NewsPost')
         contract.deleteNewsPostProfile({
             tokenId: newsPostId
         }, process.env.DEFAULT_GAS_VALUE).then(response => {
@@ -39,9 +44,22 @@ class FullNewsPost extends Component {
 
     render() { 
 
-        let { newsPostDate, newsPostTitle, newsPostId, newsPostBody, author, category, comments, handleChange, handleDateChange } = this.props
+        let { newsPostDate, newsPostTitle, newsPostId, newsPostBody, author, category, comments, published, handleChange, handleDateChange } = this.props
+
+        // Format post date as string with date and time for display
+        let formatNewsPostDate
+        if(newsPostDate) {
+            let intDate = parseInt(newsPostDate)
+            formatNewsPostDate = new Date(intDate).toLocaleString()
+            console.log("formatted post date", formatNewsPostDate)
+        } else {
+            formatNewsPostDate = 'undefined'
+        }
+
         console.log('comments', comments)
-        let Comments = 'loading'
+        let Comments;
+        if(published) {
+        Comments = (<Segment>Be the first to comment</Segment>)
        // if (comments && comments.length === 0) { return <Redirect to="/" /> }
         
         if (comments && comments.length > 0) {
@@ -55,7 +73,8 @@ class FullNewsPost extends Component {
                console.log('newspostId', newsPostId)
                if(comment[0]!='' && comment[1] == newsPostId && comment[4] === 'true') {
                 return (
-                        
+                    <div>
+                    <Segment>
                         <Comment
                             key={comment[0]}
                             commentId={comment[0]}
@@ -63,20 +82,23 @@ class FullNewsPost extends Component {
                             comments={comments}
                             handleChange={handleChange}
                             accountId={accountId}
-                            />
-                       
+                        />
+                    </Segment>
+                    </div>
                     )
                }
             })
-        }    
-   
-   
+        }  
+        } else {
+            Comments = '<div></div>'
+        }  
     return (
         <Container className="main">
         <div className="post">
-        <Icon name='delete' onClick={this.deleteNewsPost} />
+        {author===accountId ?<Icon name='delete' onClick={this.deleteNewsPost} className="deleteicon" /> : ''}
+       
         <Header size='huge'>{newsPostTitle}</Header>
-        <Header.Subheader color='teal'>Posted: {newsPostDate} </Header.Subheader>
+        <Header.Subheader color='teal'>{formatNewsPostDate} </Header.Subheader>
       
         <Segment secondary className="postInfo">
         
@@ -92,16 +114,8 @@ class FullNewsPost extends Component {
         <div dangerouslySetInnerHTML={{ __html: newsPostBody}}>
         </div>
         </Segment>
-       
-        
-        <span className="badgeposition"><Image size='tiny' src={require('../../../../assets/vpguild-logo.png')} avatar />{newsPostId}</span>
-          
-            
-        
         </div>
-        <Segment>
-            {Comments}
-        </Segment>
+        {Comments}
         <Segment>
             <CommentSubmitForm 
                 handleChange={handleChange}

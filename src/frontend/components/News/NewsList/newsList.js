@@ -22,7 +22,7 @@ class NewsList extends Component {
 
     async loadData() {
         let newsPostList = await this.props.contract.getAllNewsPosts();
-       console.log('existing news posts', newsPostList)
+        console.log('existing news posts', newsPostList)
        
     }
 
@@ -37,8 +37,10 @@ class NewsList extends Component {
         console.log('newsposts list members ', newsPosts)
         if (loaded && !login) {return <Redirect to="/" />}
         let Posts = 'loading'
-        if (newsPosts && newsPosts.length === 0) { return <Redirect to="/" /> }
-        
+        if (newsPosts && newsPosts.length === 0) { 
+            Posts = 'no news yet'
+        }
+
         if (newsPosts.length > 0) {
             Posts = newsPosts.map(post => {
                console.log('news posts map', post)
@@ -61,9 +63,9 @@ class NewsList extends Component {
     
         return (
                 <div>
-                <Header as='h1'>Latest News</Header>
-                 {Posts}
-               </div>
+                    <Header as='h1'>Latest News</Header>
+                    {Posts}
+                </div>
            
         )
     }

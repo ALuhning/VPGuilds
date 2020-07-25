@@ -16,11 +16,14 @@ import HeaderNav from '../../components/Header/header';
 import News from '../../components/News/news'
 import Posting from '../../components/News/Posting/posting'
 import Commenting from '../../components/common/CommentSubmit/commenting'
+import Profiling from '../../components/Account/Profile/profiling'
 import Admin from '../../components/Admin/admin'
 import Members from '../../components/Members/members'
 import SingleNewsPost from '../../components/News/SingleNewsPost/singleNewsPost'
 import UserPublishedNewsList from '../../components/Account/PublishedPosts/userPublishedNewsList'
 import UserDraftNewsList from '../../components/Account/DraftPosts/userDraftNewsList'
+import Profile from '../../components/Account/Profile/profile'
+import EditProfile from '../../components/Account/Profile/editProfile'
 
 
 import './app.css';
@@ -35,7 +38,6 @@ class App extends Component {
             backDrop: false,
             back: false,
             accountId: '',
-          
 
             // News Posts
             newsPostId: '',
@@ -59,6 +61,15 @@ class App extends Component {
             commentAuthor: '',
             commentVerificationHash: '',
             commentPublished: false,
+
+            // Profiles
+            profiles: [],
+            profileId: '',
+            profilePrivacy: true,
+            firstName: '',
+            lastName: '',
+            avatar: [],
+            profileVerificationHash: '',
 
             // Consolidation Pages
             allNewsPosts: [],
@@ -127,24 +138,24 @@ class App extends Component {
 
         // fill comments array
         this.getAllCommentsByAllAuthors().then(res => {
-        console.log('comment res', res);
-        this.setState({
-            comments: res.comments
-        });
+            console.log('comment res', res);
+            this.setState({
+                comments: res.comments
+            });
 
-        if (res == null ) {
-            this.setState({
-                loaded: true
-            });
-        } else {
-            this.setState({
-                comments: res.comments,
-                loaded: true
-            });
-        }
-    }).catch(err => {
-        console.log(err);
-    })
+            if (res == null ) {
+                this.setState({
+                    loaded: true
+                });
+            } else {
+                this.setState({
+                    comments: res.comments,
+                    loaded: true
+                });
+            }
+        }).catch(err => {
+            console.log(err);
+        })
 
         // fill members array
         this.getAllMembers().then(res => {
@@ -167,8 +178,26 @@ class App extends Component {
             console.log(err);
         })
 
-            
-            console.log('signed in accountid ', this.state.accountId)
+        // fill profiles array
+        this.getAllProfiles().then(res => {
+            console.log('profile res', res);
+            this.setState({
+                profiles: res.profiles
+            });
+
+            if (res == null) {
+                this.setState({
+                    loaded: true
+                });
+            } else {
+                this.setState({
+                    profiles: res.profiles,
+                    loaded: true
+                });
+            }
+        }).catch(err => {
+            console.log(err);
+        })
     }
 
     getNewsPostsByAuthor = (author) => {
@@ -185,6 +214,10 @@ class App extends Component {
     
     getAllMembers = () => {
         return this.props.contract.getAllMembers();
+    }
+
+    getAllProfiles = () => {
+        return this.props.contract.getAllProfiles();
     }
 
     async requestSignIn() {
@@ -228,6 +261,8 @@ class App extends Component {
         let { loggedIn, loaded, backDrop, back, accountId, user, role, roles,
         newsPostId, newsPostAuthor, newsPostBody, newsPostCategory, newsPostTitle, newsPostPhotos, 
         newsVerificationHash, published, newsPostDate, newsPosts, members,
+        profiles, profilePrivacy, profileId,
+        firstName, lastName, avatar, profileVerificationHash,
         commentId, commentParent, commentPublished, commentVerificationHash, comments } = this.state
 
         let { contract, account } = this.props
@@ -311,6 +346,26 @@ class App extends Component {
 
                     <Route
                     exact
+                    path='/edit-profile'
+                    render={() => 
+                        <EditProfile
+                            login={loggedIn}
+                            loaded={loaded}
+                            accountId={accountId}
+                            handleChange={this.handleChange}
+                            handleDateChange={this.handleDateChange}
+                            profileId={profileId}
+                            firstName={firstName}
+                            lastName={lastName}
+                            avatar={avatar}
+                            profilePrivacy={profilePrivacy}
+                            profileVerificationHash={profileVerificationHash}
+                        />
+                    }
+                    />
+
+                    <Route
+                    exact
                     path='/posting'
                     render={() => 
                         <Posting
@@ -350,6 +405,25 @@ class App extends Component {
                     />
 
                     <Route
+                    exact
+                    path='/profiling'
+                    render={() => 
+                        <Profiling
+                            login={loggedIn}
+                            loaded={loaded}
+                            accountId={accountId}
+                            handleChange={this.handleChange}
+                            handleDateChange={this.handleDateChange}
+                            contract={contract}
+                            profileId={profileId}
+                            profilePrivacy={profilePrivacy}
+                            profiles={profiles}
+                            profileVerificationHash={profileVerificationHash}
+                        />
+                    }
+                    />
+
+                    <Route
                         exact
                         path='/@:topicId'
                         
@@ -370,6 +444,31 @@ class App extends Component {
                                 handleDateChange={this.handleDateChange}
                                 accountId={accountId}
                                 comments={comments}
+                            />
+                        }
+                    />
+
+                    <Route
+                        exact
+                        path='/member-:topicId'
+                        
+                        render={() => 
+                            <Profile
+                                loaded={loaded}
+                                login={loggedIn}
+                                contract={contract}
+                                profiles={profiles}
+                                firstName={firstName}
+                                lastName={lastName}
+                                avatar={avatar}
+                                backDrop={backDrop}
+                                back={back}
+                                backdropCancelHandler={this.backdropCancelHandler}
+                                backShowHandler={this.backShowHandler}
+                                backCancelHandler={this.backCancelHandler}
+                                handleChange={this.handleChange}
+                                handleDateChange={this.handleDateChange}
+                                accountId={accountId}
                             />
                         }
                     />

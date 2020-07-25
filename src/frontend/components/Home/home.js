@@ -12,26 +12,39 @@ class Home extends Component {
         let page = '';
         if(!login) {
             page = (
-                <Poster />
+                <Grid>
+                    <Grid.Row>
+                        <Grid.Column width={16}>            
+                            <Poster />
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>    
             )
         } else if (login && loaded) {
             page = (
-                <NewsList
-                    login={login}
-                    loaded={loaded}
-                    contract={contract}
-                    newsPosts={newsPosts}
-                    accountId={accountId}
-                    userdb={userdb}
-                    appdb={appdb}
-                />
+                <Grid>
+                    <Grid.Row>
+                        <Grid.Column width={12}>
+                            <NewsList
+                                login={login}
+                                loaded={loaded}
+                                contract={contract}
+                                newsPosts={newsPosts}
+                                accountId={accountId}
+                                userdb={userdb}
+                                appdb={appdb}
+                            />
+                        </Grid.Column>
+                        <Grid.Column width={4}>
+                            <h3>Right Sidebar</h3>
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>        
                 )
         }
         return (
             <Container className="main">
-                
-                    {page}
-                
+                {page}            
             </Container>
         )
     }

@@ -72,10 +72,12 @@ class MemberCard extends Component {
                 <Image src={formatSrc} size='small' />
                 
            
-                    <Card.Content header={memberAccount} as={Link} to={{
-                        pathname: "/@" + memberId,
-                        hash: memberId
-                    }} className="memberAccount"/>
+                    <Card.Content 
+                        header={memberAccount} 
+                        as={Link} 
+                        to={{ pathname: "/member-" + memberId }} 
+                        className="memberAccount"
+                    />
                     <Card.Content>
                     <Card.Meta>
                         <span className='date'>Member since: {formatMemberJoinDate}</span>

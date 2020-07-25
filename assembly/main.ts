@@ -12,7 +12,8 @@ import {  UserIdentity,
           AppIdentity, 
           UserRole, UserRoleMetaData,
           App, AppMetaData,
-          Member, MemberMetaData, MembersArray,          
+          Member, MemberMetaData, MembersArray,
+          Profile, ProfileMetaData, ProfileArray,
           NewsPost, NewsPostArray, NewsPostMetaData,
           Comment, CommentMetaData, CommentArray
           } from "./model";
@@ -47,8 +48,14 @@ let userRoleList = new PersistentVector<UserRoleMetaData>("role");
 let users = new PersistentVector<string>("users")
 let userRoles = new PersistentMap<string, UserRoleMetaData>("userRoles");
 
+// Member storage
 let members = new PersistentVector<string>("members");
 let memberProfile = new PersistentMap<string, MemberMetaData>("memberdata");
+
+// Profile storage
+let indivProfiles = new PersistentMap<string, Profile>("indivProfiles");
+let profileMeta = new PersistentMap<string, ProfileMetaData>("profiledata");
+let profiles = new PersistentVector<string>("profiles");
 
 // member Id counter (not currently used)
 function _incrementCounter(value: u32): void {
@@ -476,6 +483,22 @@ export function getAllComments(): CommentArray {
   return nl;
 }
 
+export function getAllProfiles(): ProfileArray {
+  logging.log('retrieving profiles');
+  let _profileList = new Array<string[]>();
+  logging.log(profiles);
+  for(let i: i32 = 0; i < profiles.length; i++) {
+    let _profile = getProfileData(profiles[i]);
+    logging.log(_profile)
+    _profileList.push(_profile);
+  }
+  let nl = new ProfileArray();
+  nl.profiles = _profileList;
+  nl.len = _profileList.length;
+  logging.log(nl)
+  return nl;
+}
+
 
 // Methods for Individual News Posts
 export function getNewsPost(tokenId: string): NewsPost {
@@ -763,6 +786,106 @@ function decrementAuthorComments(from: string, commentId: string): void {
   nd.commentData = _commentId;
   commentsByAuthor.set(from, nd);
   deleteNewsPost(commentId);
+}
+
+// Methods for Profiles
+
+export function getProfile(profileId: string): Profile {
+  let profile = indivProfiles.getSome(profileId);
+  return profile;
+}
+
+export function setProfileData(profile: Profile): void {
+  let _profileId = getCommentData(profile.profileId);
+  logging.log('setting profile data')
+  logging.log(_profileId)
+  if(_profileId == null) {
+    _profileId = new Array<string>();
+    _profileId.push(profile.profileId);
+    _profileId.push(profile.member);
+    _profileId.push(profile.profileVerificationHash);
+    _profileId.push(profile.privacy);
+    logging.log(_profileId)
+  } else {
+    let present = false;
+    for(let i: i32 = 0; i < _profileId.length; i++){
+      if (_profileId[0] == profile.profileId) {
+        present = true;
+        break;
+      }
+    }
+    if (!present) {
+    _profileId.push(profile.profileId);
+    _profileId.push(profile.member);
+    _profileId.push(profile.profileVerificationHash);
+    _profileId.push(profile.privacy);
+    }
+  }
+  let profileData = new ProfileMetaData();
+  profileData.profileData = _profileId;
+  profileMeta.set(profile.profileId, profileData);
+  logging.log(profileMeta);
+  logging.log(profile.profileId);
+  logging.log(profileData);
+}
+
+export function getProfileData(profileId: string): Array<string> {
+  let profile = profileMeta.get(profileId);
+  logging.log('getting profile data')
+  logging.log(profile)
+  if(!profile) {
+    return new Array<string>();
+  }
+  let profileData = profile.profileData;
+  return profileData;
+}
+
+export function addProfile(
+  profileId: string,
+  profileVerificationHash: string,
+  privacy: string
+): Profile {
+  logging.log("adding profile");
+  return _addProfile(
+    profileId,
+    profileVerificationHash,
+    privacy
+  );
+}
+
+function _addProfile(
+  profileId: string,
+  profileVerificationHash: string,
+  privacy: string
+): Profile {
+  logging.log("start adding new profile");
+  let profile = new Profile();
+  profile.profileId = profileId;
+  profile.member = Context.sender;
+  profile.profileVerificationHash = profileVerificationHash;
+  profile.privacy = privacy;
+  logging.log('setting new profile');
+  setProfileData(profile);
+  logging.log('setting new profile by author');
+  _addNewProfile(profileId);
+  logging.log("added profile");
+  return profile;
+}
+
+function _addNewProfile(profileId: string): void {
+  let present = false;
+  for(let i: i32 = 0; i < profiles.length; i++) {
+    if (profiles[i] == profileId) {
+      present = true;
+    }
+  }
+  if (!present) {
+    profiles.push(profileId);
+  }
+}
+
+export function deleteProfile(profileId: string): void {
+  indivProfiles.delete(profileId);
 }
 
 //ERROR handling

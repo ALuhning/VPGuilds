@@ -43,6 +43,7 @@ class UserPublishedNewsList extends Component {
                console.log('post[0]', post[0])
                console.log('accountId', accountId)
                console.log('post[1]', post[1])
+               console.log('newsposts', newsPosts)
                if(post[0]!=='' && post[1] === accountId && post[3]=== 'true') {
                 return (
                         

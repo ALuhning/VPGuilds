@@ -43,12 +43,12 @@ class UserDraftNewsList extends Component {
                console.log('post[0]', post[0])
                console.log('accountId', accountId)
                console.log('post[1]', post[1])
-               if(post[0]!=='' && post[1] === accountId && post[3]=== 'false') {
+               if((post[0]!=='' || post.newsPostId!=='') && (post[1] === accountId || post.newsPostAuthor === accountId) && (post[3]=== 'false' || post.published === 'false')) {
                 return (
                         
                         <UserDraftNewsCard
-                            key={post[0]}
-                            newsPostId={post[0]}
+                            key={post[0]?post[0]:post.newsPostId}
+                            newsPostId={post[0]?post[0]:post.newsPostId}
                             contract={contract}
                             newsPosts={newsPosts}
                             handleChange={handleChange}

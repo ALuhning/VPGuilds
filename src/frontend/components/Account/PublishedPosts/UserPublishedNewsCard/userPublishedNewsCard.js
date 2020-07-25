@@ -26,7 +26,7 @@ class UserPublishedNewsCard extends Component {
         this.loadData()
         .then((result) => {
             console.log('result', result)
-            
+            if(result && result.published === true){
                 this.setState({
                     loaded:true,
                     title: result.title,
@@ -37,6 +37,7 @@ class UserPublishedNewsCard extends Component {
                     body: result.body,
                     published: result.published
                 })
+            }
             
         })
     }
@@ -48,27 +49,8 @@ class UserPublishedNewsCard extends Component {
         return record
      } else {
      console.log('no record')
-     return record
      }
     }
-
-    deleteNewsPost = () => {
-        let { newsPosts, contract, jump, handleChange, handleDelete } = this.props
-       
-        handleDelete()
-        deleteRecord(jump.jumpIdentifier, 'MilitaryJump') 
-        contract.deleteJumpProfile({
-            tokenId: jump.jumpIdentifier
-        }, process.env.DEFAULT_GAS_VALUE).then(response => {
-            console.log("[profile.js] jumps", response.len)
-            let newJumps = response.jumps
-            handleChange({ name: "jumps", value: newJumps })
-            handleDelete()
-        }).catch(err => {
-            console.log(err);
-        })
-    }
-
 
     render() {
         let { newsPosts, newsPostId } = this.props
@@ -88,11 +70,11 @@ class UserPublishedNewsCard extends Component {
         }
         let formatSrc = newsPostPhoto
 
-       
-            let info = (loaded && published)
-            ? ( 
+        let info;
+        if(loaded && published){
+            info = ( 
                 <div className="post">
-                <Header size='huge' as={Link} to={{pathname: "/"+id}}>{title}</Header>
+                <Header size='huge' as={Link} to={{pathname: "/@"+id}}>{title}</Header>
                 <Header.Subheader color='teal'>Posted: 12/20/2020 </Header.Subheader>
               
                 <Segment secondary className="postInfo">
@@ -117,8 +99,10 @@ class UserPublishedNewsCard extends Component {
                 
                 </div>
             )
-        :
-            (
+            } else {
+                if (id) {
+            
+                (
                     <Card>
                     <Card.Content>
                     <Card.Header>
@@ -132,7 +116,11 @@ class UserPublishedNewsCard extends Component {
                         22 friends
                     </Card.Content>
                     </Card>
-            )
+                )
+                } else {
+                    info = <div></div>
+                }
+            }
     
         return (
             
