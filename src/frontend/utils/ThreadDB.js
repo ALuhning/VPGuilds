@@ -579,7 +579,7 @@ export async function createAppRecord(collection, record) {
 //    const db = await tokenWakeUp(type)
 
   try {
-     await appDatabase.create(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, record)        
+     await appDatabase.create(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, [record])        
      console.log('success app record created')
   } catch (err) {
       console.log('error', err)
@@ -592,7 +592,7 @@ export async function createRecord(collection, record) {
 //  const db = await tokenWakeUp(type)
 
     try {
-       await userDatabase.create(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)), collection, record)        
+       await userDatabase.create(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)), collection, [record])        
        console.log('success record created')
     } catch (err) {
         console.log('error', err)
@@ -600,6 +600,54 @@ export async function createRecord(collection, record) {
     }
 }
 
+export async function updateAppRecord(collection, record) {
+  
+    try {
+       await appDatabase.save(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, [record])        
+       console.log('success app record updated')
+    } catch (err) {
+        console.log('error', err)
+        console.log('there was a problem, app record not updated')
+    }
+  }
+  
+  export async function updateRecord(collection, record) {
+  
+      try {
+         await userDatabase.save(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)), collection, [record])        
+         console.log('success record updated')
+      } catch (err) {
+          console.log('error', err)
+          console.log('there was a problem, record not updated')
+      }
+  }
+
+  export async function hasAppRecord(collection, id) {
+  
+    try {
+       await appDatabase.has(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_APP_THREADID)), collection, [id])        
+       console.log('success app record found')
+       return true
+    } catch (err) {
+        console.log('error', err)
+        console.log('there was a problem, app record not found')
+        return false
+    }
+  }
+  
+  export async function hasRecord(collection, id) {
+  
+      try {
+        console.log('id to find', id)
+         await userDatabase.has(ThreadID.fromString(localStorage.getItem(appId + ":" + process.env.THREADDB_USER_THREADID)), collection, [id])        
+         console.log('success record found')
+         return true
+      } catch (err) {
+          console.log('error', err)
+          console.log('there was a problem, record not found')
+          return false
+      }
+  }
 
 export async function deleteAppRecord(id, collection) {
 //  let type = 'app'

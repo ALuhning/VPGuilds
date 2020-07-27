@@ -68,7 +68,7 @@ class App extends Component {
             profilePrivacy: true,
             firstName: '',
             lastName: '',
-            avatar: [],
+            avatar: '',
             profileVerificationHash: '',
 
             // Consolidation Pages
@@ -79,6 +79,7 @@ class App extends Component {
             role: '',
             roles: [],
             members: [],
+            thisMember: ''
         }
         this.signedInFlow = this.signedInFlow.bind(this);
         this.requestSignIn = this.requestSignIn.bind(this);
@@ -91,6 +92,9 @@ class App extends Component {
         })
         if (loggedIn) {
             this.signedInFlow();
+            this.setState({
+                loaded:true
+            })
         } else {
             this.signedOutFlow();
         }
@@ -163,7 +167,11 @@ class App extends Component {
             this.setState({
                 members: res.members
             });
-
+            let thisMember = this.state.members.filter((member) => member[1] === this.state.accountId)[0]
+            this.setState({
+                thisMember: thisMember
+            })
+            console.log('this member', thisMember)
             if (res == null) {
                 this.setState({
                     loaded: true
@@ -260,7 +268,7 @@ class App extends Component {
     render() {
         let { loggedIn, loaded, backDrop, back, accountId, user, role, roles,
         newsPostId, newsPostAuthor, newsPostBody, newsPostCategory, newsPostTitle, newsPostPhotos, 
-        newsVerificationHash, published, newsPostDate, newsPosts, members,
+        newsVerificationHash, published, newsPostDate, newsPosts, members, thisMember,
         profiles, profilePrivacy, profileId,
         firstName, lastName, avatar, profileVerificationHash,
         commentId, commentParent, commentPublished, commentVerificationHash, comments } = this.state
@@ -277,7 +285,9 @@ class App extends Component {
                     requestSignOut={this.requestSignOut}
                     accountId={accountId}
                     handleChange={this.handleChange} 
-                    account={account} 
+                    account={account}
+                    thisMember={thisMember}
+                    profiles={profiles}
                 />
 
                 <Switch>
@@ -346,7 +356,7 @@ class App extends Component {
 
                     <Route
                     exact
-                    path='/edit-profile'
+                    path='/edit-profile-:memberId'
                     render={() => 
                         <EditProfile
                             login={loggedIn}
@@ -469,6 +479,7 @@ class App extends Component {
                                 handleChange={this.handleChange}
                                 handleDateChange={this.handleDateChange}
                                 accountId={accountId}
+                                members={members}
                             />
                         }
                     />

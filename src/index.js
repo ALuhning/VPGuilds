@@ -112,7 +112,7 @@ if(window.accountId === '') {
         ],
        
         // Sender is the account ID to initialize transactions.
-        //sender: window.accountId
+        sender: window.accountId
       }
     );
 

@@ -3,7 +3,7 @@ import { Redirect, withRouter } from 'react-router-dom';
 
 import  ProfileData from '../../Templates/Profiles/profileData';
 import Spinners from '../../common/Spinner/spinner';
-import { Container } from 'semantic-ui-react';
+import { Container, Segment } from 'semantic-ui-react';
 import { retrieveAppRecord, retrieveRecord } from '../../../utils/ThreadDB'
 
 import "./profile.css"
@@ -19,13 +19,26 @@ class Profile extends Component {
             lastName: '',
             avatar: '',
             profilePrivacy: true,
-            exists: false
+            exists: true
         }
     }
 
     componentDidMount() {
         this.loadData()
         .then((result) => {
+            if(!result) {
+                let memberAccount = this.props.history.location.pathname.slice(8)
+                let profileId = this.props.history.location.hash.slice(1)
+                this.props.handleChange({ name: "profileId", profileId })
+                this.setState({ 
+                    profileId: profileId,
+                    memberAccount: memberAccount,
+                    exists: false
+                })
+                console.log('memberaccount', this.state.memberAccount)
+                console.log('profileId', this.state.profileId)
+            }
+            
             console.log('result', result)
             if(result) {
                 this.setState({
@@ -43,7 +56,7 @@ class Profile extends Component {
     }
 
     async loadData() {
-        let profileId = this.props.history.location.pathname.slice(8)
+        let profileId = this.props.history.location.hash.slice(1)
         console.log('profileid', profileId)
         console.log('profiles here ', this.props.profiles)
         let record = await retrieveAppRecord(profileId, 'Profile')
@@ -55,7 +68,6 @@ class Profile extends Component {
             return record
         } else {
             console.log('no profile record')
-
         }    
     }
 
@@ -69,39 +81,43 @@ class Profile extends Component {
             contract,
             handleChange,
             handleDateChange,
+            members,
         } = this.props
 
-        let { profileId, member, firstName, lastName, avatar, profilePrivacy, exists } = this.state
-        let page = (
-            
-                <Spinners />
-  
-        )
-        if (loaded === false) {
-            return <div>{page}</div>
-        } else {
-            if (!exists) { return <Redirect to="/edit-profile" /> }
-        }
-           page = (
-            <ProfileData
-                profileId={profileId}
-                firstName={firstName}
-                lastName={lastName}
-                avatar={avatar}
-                member={member}
-                accountId={accountId}
-                history={history}
-                contract={contract}
-                handleChange={handleChange}
-                handleDateChange={handleDateChange}
-                profiles={profiles}
-                profilePrivacy={profilePrivacy}
-            />
-           )
-        
-        
+        let { profileId, member, memberAccount, firstName, lastName, avatar, profilePrivacy, exists } = this.state
+        console.log('profile state', this.state)
+        let page;
         if (loaded && !login) { return <Redirect to="/" /> }
-        if (!profiles) { return <Redirect to="/members" /> }
+        console.log('profile Id', this.state.profileId)
+        if (exists === false  && memberAccount === accountId) { 
+            return <Redirect to={{ 
+                pathname: "/edit-profile-" + memberAccount, 
+                hash: profileId
+            }} /> 
+        }
+        
+        if (loaded === false) {
+            return <div><Spinners /></div>
+        } else {
+            page = (
+                <ProfileData
+                    profileId={profileId}
+                    firstName={firstName}
+                    lastName={lastName}
+                    avatar={avatar}
+                    member={member}
+                    members={members}
+                    accountId={accountId}
+                    history={history}
+                    contract={contract}
+                    handleChange={handleChange}
+                    handleDateChange={handleDateChange}
+                    profiles={profiles}
+                    profilePrivacy={profilePrivacy}
+                />
+              
+               )
+        }        
         
         return (
             <Container>                

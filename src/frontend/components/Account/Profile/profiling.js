@@ -3,7 +3,6 @@ import { Redirect } from 'react-router-dom';
 import { Progress, Container } from 'semantic-ui-react';
 
 import './profile.css';
-import { InvalidAccountId } from 'near-api-js/lib/utils/rpc_errors';
 
 class Profiling extends Component {
     constructor(props) {
@@ -20,6 +19,7 @@ class Profiling extends Component {
             this.setState({loaded:true})
             let {profileId, profileVerificationHash, profilePrivacy, handleChange, contract, profiles } = this.props
             console.log('profiles state', this.state);
+            console.log('profiles props', this.props)
             console.log("**profileId", profileId, "**profileVerificationhash", profileVerificationHash, "**privacy", profilePrivacy)
             if(profileId && profileVerificationHash) {
             contract.addProfile({

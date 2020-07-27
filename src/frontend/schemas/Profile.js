@@ -18,9 +18,8 @@ export const profileSchema = {
         type: 'string',
       },
       avatar: {
-        type: 'array',
-        items: {
-          },
+        type: 'string',
+        contentEncoding: 'base64',
       },
       verificationHash: {
           type: 'string',

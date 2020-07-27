@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Card, Image, Icon, Loader, Dimmer, Segment, Header, Divider, Label, Grid } from 'semantic-ui-react'
 import { retrieveAppRecord, deleteAppRecord } from '../../../utils/ThreadDB'
+import Avatar from '../../../components/common/Avatar/avatar'
 
 import './comment.css'
 
@@ -79,8 +80,12 @@ class Comment extends Component {
 
     render() {
                
-        let { commentId, commentParent, commentSubject, commentBody, commentDate, commentAuthor } = this.state        
+        let { commentId, commentParent, commentSubject, commentBody, commentDate, commentAuthor } = this.state
+        let { members } = this.props   
        
+        let commentMember = members.filter((member) => member[1] === commentAuthor)[0]
+        console.log('commenter', commentMember)
+
         // Format jump date as string with date and time for display
         let formatCommentDate;
         if(commentDate) {
@@ -95,29 +100,17 @@ class Comment extends Component {
             let comment = this.state.loaded 
             ? ( 
                 <div className="comment">
-                <Header size='small'>{commentSubject}</Header>
-                <Header.Subheader color='teal'>Posted: {formatCommentDate}</Header.Subheader>
-              
-                <Segment secondary className="commentInfo">
+                    <Header size='small'>{commentSubject}</Header>
+                    <Header.Subheader color='teal'>Posted: {formatCommentDate}</Header.Subheader>
                 
-               
-                <Label as='a'><Image avatar spaced='right' src='https://react.semantic-ui.com/images/avatar/small/elliot.jpg' />{commentAuthor}</Label>
-    
-              
-                <Label as='a' tag color="blue" className="category"> Test Cat {commentId} </Label>
-              
-                
-                </Segment>
-                <Segment basic>
-                <div dangerouslySetInnerHTML={{ __html: commentBody}}>
-                </div>
-                </Segment>
-               
-                
-                <span className="badgeposition"><Image size='tiny' src={require('../../../../assets/vpguild-logo.png')} avatar />{commentId}</span>
-                    
-                    
-                
+                    <Segment secondary className="commentInfo">
+                        <Avatar profileId={commentMember[0]} accountId={commentAuthor}/>
+                        <Label as='a' tag color="blue" className="category"> Test Cat {commentId} </Label>
+                    </Segment>
+                    <Segment basic>
+                        <div dangerouslySetInnerHTML={{ __html: commentBody}}>
+                        </div>
+                    </Segment>
                 </div>
             )
         :

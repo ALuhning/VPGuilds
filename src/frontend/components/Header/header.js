@@ -16,6 +16,7 @@ import {
   Input,
   Message,
 } from 'semantic-ui-react'
+import Avatar from '../../components/common/Avatar/avatar'
 
 
 class HeaderNav extends Component {
@@ -24,13 +25,13 @@ class HeaderNav extends Component {
         super(props)
         this.state = {
             balance: '',
-            loaded: false
+            loaded: false,
+            avatarProfileId: ''
         }
     }
 
     componentDidMount() {
         this.loadData().then(() => {
-            this.setState({loaded:true})
             if(this.props.login) {
             this.getCurrentBalance()
             }
@@ -38,7 +39,7 @@ class HeaderNav extends Component {
     }
 
     async loadData() {
-        console.log(this.props)
+    
     }
 
     async getCurrentBalance() {
@@ -52,8 +53,9 @@ class HeaderNav extends Component {
     }
 
    render() {
-    let { login, loaded, requestSignOut, requestSignIn, accountId, length, handleChange } = this.props
-
+    let { login, loaded, requestSignOut, requestSignIn, accountId, length, handleChange, members, thisMember } = this.props
+    console.log('this member nav here', thisMember)
+          
     let loginButton = '';
     if (!login) { loginButton = (
         <Button as='div' labelPosition='left' onClick={requestSignIn}>
@@ -120,6 +122,9 @@ class HeaderNav extends Component {
                 : ''}
                     <Menu.Item>
                         {loginButton}
+                    </Menu.Item>
+                    <Menu.Item>
+                        <Avatar profileId={thisMember[0]} accountId={accountId} />
                     </Menu.Item>
                     </Menu.Menu>
             </Menu>
