@@ -25,7 +25,7 @@ class UserPublishedNewsList extends Component {
     }
 
     render() {
-        let { newsPosts, login, loaded, handleChange, contract, accountId } = this.props
+        let { newsPosts, login, loaded, handleChange, contract, accountId, profiles } = this.props
         if (loaded === false) {
             return <div>Loading...</div>
         } else {
@@ -53,6 +53,7 @@ class UserPublishedNewsList extends Component {
                             contract={contract}
                             newsPosts={newsPosts}
                             handleChange={handleChange}
+                            profiles={profiles}
                             />
                        
                     )

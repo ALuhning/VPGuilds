@@ -5,7 +5,7 @@ import UserPublishedNewsList from './userPublishedNewsList'
 import './publishedPosts.css';
 class PublishedPosts extends Component {
     render() {
-        let { login, loaded, newsPosts, accountId} = this.props
+        let { login, loaded, newsPosts, accountId, profiles} = this.props
         let page = '';
         if (login && loaded) {
             page = (
@@ -15,6 +15,7 @@ class PublishedPosts extends Component {
                     contract={contract}
                     newsPosts={newsPosts}
                     accountId={accountId}
+                    profiles={profiles}
                 />
                 )
         }

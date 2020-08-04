@@ -332,6 +332,7 @@ class App extends Component {
                             loaded={loaded}
                             newsPosts={newsPosts}
                             accountId={account?account.accountId:account}
+                            profiles={profiles}
 
                         />
                     }
@@ -346,6 +347,7 @@ class App extends Component {
                             loaded={loaded}
                             newsPosts={newsPosts}
                             accountId={account?account.accountId:account}
+                            profiles={profiles}
 
                         />
                     }
