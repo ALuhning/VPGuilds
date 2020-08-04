@@ -27,7 +27,7 @@ class Avatar extends Component {
     }
 
     async loadData() {
-        
+        console.log('avatar profileId', this.props.profileId)
         let record = await retrieveAppRecord(this.props.profileId, 'Profile')
         if(!record) {
             record = await retrieveRecord(this.props.profileId, 'Profile')

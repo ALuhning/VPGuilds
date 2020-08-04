@@ -43,9 +43,10 @@ class HeaderNav extends Component {
     }
 
     async getCurrentBalance() {
-        let currentBalance = await this.props.account.getAccountBalance();
-        let formattedBalance = (parseFloat(currentBalance.available)/Math.pow(10, 24)).toFixed(2);
-        console.log('currentBalance', (parseFloat(currentBalance.available)/Math.pow(10, 24)).toFixed(2))
+        let currentBalance = await this.props.account.balance;
+        console.log('first current balance', currentBalance)
+        let formattedBalance = (parseFloat(currentBalance)/Math.pow(10, 24)).toFixed(2);
+        console.log('currentBalance', (parseFloat(currentBalance)/Math.pow(10, 24)).toFixed(2))
         this.setState({
             balance: formattedBalance
         })
@@ -55,6 +56,7 @@ class HeaderNav extends Component {
    render() {
     let { login, loaded, requestSignOut, requestSignIn, accountId, length, handleChange, members, thisMember } = this.props
     console.log('this member nav here', thisMember)
+    console.log('accountid header', accountId)
           
     let loginButton = '';
     if (!login) { loginButton = (
@@ -123,9 +125,11 @@ class HeaderNav extends Component {
                     <Menu.Item>
                         {loginButton}
                     </Menu.Item>
+                    {login && thisMember?
                     <Menu.Item>
                         <Avatar profileId={thisMember[0]} accountId={accountId} />
                     </Menu.Item>
+                    : ''}
                     </Menu.Menu>
             </Menu>
        )

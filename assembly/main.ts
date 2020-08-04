@@ -15,7 +15,8 @@ import {  UserIdentity,
           Member, MemberMetaData, MembersArray,
           Profile, ProfileMetaData, ProfileArray,
           NewsPost, NewsPostArray, NewsPostMetaData,
-          Comment, CommentMetaData, CommentArray
+          Comment, CommentMetaData, CommentArray, 
+          Like, LikeMetaData, LikeArray,
           } from "./model";
 
 // Collections where we store data
@@ -45,7 +46,7 @@ let commentsByAuthor = new PersistentMap<string, CommentMetaData>("commentsByAut
 
 // user role storage
 let userRoleList = new PersistentVector<UserRoleMetaData>("role");
-let users = new PersistentVector<string>("users")
+let users = new PersistentVector<string>("users");
 let userRoles = new PersistentMap<string, UserRoleMetaData>("userRoles");
 
 // Member storage
@@ -56,6 +57,12 @@ let memberProfile = new PersistentMap<string, MemberMetaData>("memberdata");
 let indivProfiles = new PersistentMap<string, Profile>("indivProfiles");
 let profileMeta = new PersistentMap<string, ProfileMetaData>("profiledata");
 let profiles = new PersistentVector<string>("profiles");
+
+// Likes
+let likes = new PersistentVector<string>("likes");
+let likeMeta = new PersistentMap<string, LikeMetaData>("likedata");
+let indivLikes = new PersistentMap<string, Like>("indivLikes");
+let likesByGiver = new PersistentMap<string, LikeMetaData>("likesByGiver")
 
 // member Id counter (not currently used)
 function _incrementCounter(value: u32): void {
@@ -86,7 +93,7 @@ export function setIdentity(account: string, identity: string, threadId: string,
       newId.account = account;
       newId.identity = identity;
       newId.threadId = threadId;
-      newId.memberId = thisMemberId;
+      newId.memberId = thisMemberId.toString();
       newId.status = status;
       userIdentity.set(Context.sender, newId);
     } else {
@@ -119,7 +126,7 @@ export function setAppIdentity(appId: string, identity: string, threadId: string
       newAppIdentity.appId = appId;
       newAppIdentity.identity = identity;
       newAppIdentity.threadId = threadId;
-      newAppIdentity.appNumber = thisAppNumber;
+      newAppIdentity.appNumber = thisAppNumber.toString();
       newAppIdentity.status = status;
       appIdentity.set(appId, newAppIdentity);
     } else {
@@ -362,6 +369,18 @@ export function addMember(user: string): void {
   }
 }
 
+export function addMissingMember(memberId: string): void {
+  let present = false;
+  for(let i: i32 = 0; i < members.length; i++) {
+    if (members[i] == memberId) {
+      present = true;
+    }
+  }
+  if (!present) {
+    _addNewMember(memberId)
+  }
+}
+
 function _addNewMember(memberId: string): void {
   let present = false;
   for(let i: i32 = 0; i < members.length; i++) {
@@ -495,6 +514,22 @@ export function getAllProfiles(): ProfileArray {
   let nl = new ProfileArray();
   nl.profiles = _profileList;
   nl.len = _profileList.length;
+  logging.log(nl)
+  return nl;
+}
+
+export function getAllLikes(): LikeArray {
+  logging.log('retrieving likes');
+  let _likeList = new Array<string[]>();
+  logging.log(likes);
+  for(let i: i32 = 0; i < likes.length; i++) {
+    let _like = getLikeData(likes[i]);
+    logging.log(_like)
+    _likeList.push(_like);
+  }
+  let nl = new LikeArray();
+  nl.likes = _likeList;
+  nl.len = _likeList.length;
   logging.log(nl)
   return nl;
 }
@@ -785,7 +820,7 @@ function decrementAuthorComments(from: string, commentId: string): void {
   let nd = new CommentMetaData();
   nd.commentData = _commentId;
   commentsByAuthor.set(from, nd);
-  deleteNewsPost(commentId);
+  deleteComment(commentId);
 }
 
 // Methods for Profiles
@@ -887,6 +922,155 @@ function _addNewProfile(profileId: string): void {
 export function deleteProfile(profileId: string): void {
   indivProfiles.delete(profileId);
 }
+
+// Methods for Likes
+export function getLike(likeId: string): Like {
+  let like = indivLikes.getSome(likeId);
+  return like;
+}
+
+export function getLikesByGiver(giver: string): Array<string> {
+  let likeId = likesByGiver.get(giver);
+  if(!likeId) {
+    return new Array<string>();
+  }
+  let id = likeId.likeData;
+  return id;
+}
+
+export function setLikesByGiver(like: Like): void {
+  let _likeId = getLikesByGiver(like.likeGiver);
+  if(_likeId == null) {
+    _likeId = new Array<string>();
+    _likeId.push(like.likeId);
+  } else {
+    _likeId.push(like.likeId);
+  }
+  let nd = new LikeMetaData();
+  nd.likeData = _likeId;
+  likesByGiver.set(like.likeGiver, nd);
+}
+
+export function setLikeData(like: Like): void {
+  let _likeId = getLikeData(like.likeId);
+  logging.log('setting like data')
+  logging.log(_likeId)
+  if(_likeId == null) {
+    _likeId = new Array<string>();
+    _likeId.push(like.likeId);
+    _likeId.push(like.likeGiver);
+    _likeId.push(like.likeReceiver);
+    _likeId.push(like.likeValue);
+    logging.log(_likeId)
+  } else {
+    let present = false;
+    for(let i: i32 = 0; i < _likeId.length; i++){
+      if (_likeId[0] == like.likeId) {
+        present = true;
+        break;
+      }
+    }
+    if (!present) {
+    _likeId.push(like.likeId);
+    _likeId.push(like.likeGiver);
+    _likeId.push(like.likeReceiver);
+    _likeId.push(like.likeValue);
+    }
+  }
+  let likeData = new LikeMetaData();
+  likeData.likeData = _likeId;
+  likeMeta.set(like.likeId, likeData);
+  logging.log(likeMeta);
+  logging.log(like.likeId);
+  logging.log(likeData);
+}
+
+export function getLikeData(likeId: string): Array<string> {
+  let like = likeMeta.get(likeId);
+  logging.log('getting like data')
+  logging.log(like)
+  if(!like) {
+    return new Array<string>();
+  }
+  let likeData = like.likeData;
+  return likeData;
+}
+
+export function addLike(
+  likeId: string,
+  likeReceiver: string,
+  likeValue: string
+): Like {
+  logging.log("adding like");
+  return _addLike(
+    likeId,
+    likeReceiver,
+    likeValue
+  );
+}
+
+function _addLike(
+  likeId: string,
+  likeReceiver: string,
+  likeValue: string
+): Like {
+  logging.log("start adding new like");
+  let like = new Like();
+  like.likeGiver = Context.sender;
+  like.likeReceiver = likeReceiver;
+  like.likeId = likeId;
+  like.likeValue = likeValue;
+  logging.log('setting new like');
+  setLikeData(like);
+  logging.log('setting new like by author');
+  setLikesByGiver(like);
+  logging.log('adding new like to vector')
+  _addNewLike(likeId);
+  logging.log("added like");
+  return like;
+}
+
+function _addNewLike(likeId: string): void {
+  let present = false;
+  for(let i: i32 = 0; i < likes.length; i++) {
+    if (likes[i] == likeId) {
+      present = true;
+    }
+  }
+  if (!present) {
+    likes.push(likeId);
+  }
+}
+
+
+export function deleteLike(likeId: string): void {
+  indivLikes.delete(likeId);
+}
+
+export function deleteLikeProfile(likeId: string): Array<string> {
+  let like = getLike(likeId);
+  decrementGiverLikes(like.likeGiver, likeId);
+  let leftLikes = getLikesByGiver(like.likeGiver);
+  logging.log("likes left after delete");
+  return leftLikes;
+}
+
+function decrementGiverLikes(from: string, likeId: string): void {
+  let _likeId = getLikesByGiver(from);
+  for (let i=0; i<_likeId.length; i++) {
+    if (likeId == _likeId[i]) {
+      _likeId.splice(i, 1);
+      logging.log("match");
+      break;
+    }
+  }
+  let nd = new LikeMetaData();
+  nd.likeData = _likeId;
+  likesByGiver.set(from, nd);
+  deleteLike(likeId);
+}
+
+
 
 //ERROR handling
 function _newsPostDNEError(post: NewsPost): boolean {

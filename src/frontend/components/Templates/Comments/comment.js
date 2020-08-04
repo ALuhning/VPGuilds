@@ -43,6 +43,7 @@ class Comment extends Component {
     }
 
     async loadData() {
+        console.log('commentId', this.props.commentId)
      let record = await retrieveAppRecord(this.props.commentId, 'Comment')
      console.log('comment record', record)
      if(record !== undefined) {
@@ -80,11 +81,16 @@ class Comment extends Component {
 
     render() {
                
-        let { commentId, commentParent, commentSubject, commentBody, commentDate, commentAuthor } = this.state
-        let { members } = this.props   
+        let { commentId, commentParent, commentSubject, commentBody, commentDate } = this.state
+        let { comments, profiles, commentAuthor } = this.props
+        console.log('comment Author', commentAuthor)
+        console.log('comments', comments)
        
-        let commentMember = members.filter((member) => member[1] === commentAuthor)[0]
+        let commentMember = comments.filter((comment) => ((comment[2] == commentAuthor) || comment.commentAuthor == commentAuthor))[0]
         console.log('commenter', commentMember)
+
+        let authorProfileId = profiles.filter((profile) => commentAuthor==profiles[0][1])[0]
+        console.log('comment authorprofileid', authorProfileId)
 
         // Format jump date as string with date and time for display
         let formatCommentDate;
@@ -104,8 +110,8 @@ class Comment extends Component {
                     <Header.Subheader color='teal'>Posted: {formatCommentDate}</Header.Subheader>
                 
                     <Segment secondary className="commentInfo">
-                        <Avatar profileId={commentMember[0]} accountId={commentAuthor}/>
-                        <Label as='a' tag color="blue" className="category"> Test Cat {commentId} </Label>
+                        <Avatar profileId={authorProfileId?authorProfileId[0]:0} accountId={commentAuthor}/>
+                        <Label as='a' tag color="blue" className="category"> Test Cat </Label>
                     </Segment>
                     <Segment basic>
                         <div dangerouslySetInnerHTML={{ __html: commentBody}}>

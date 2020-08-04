@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Card, Image, Icon, Loader, Dimmer, Segment, Header, Divider, Label, Grid } from 'semantic-ui-react'
 import { retrieveAppRecord, deleteAppRecord, deleteRecord } from '../../../utils/ThreadDB'
+import Avatar from '../../common/Avatar/avatar'
 
 import './newsCard.css'
 
@@ -42,9 +43,10 @@ class NewsCard extends Component {
     }
 
     async loadData() {
+        console.log('is there an id', this.props.newsPostId)
      let record = await retrieveAppRecord(this.props.newsPostId, 'NewsPost')
      console.log('news card record', record)
-     if(record !== undefined) {
+     if(record) {
         return record
      } else {
      console.log('no record')
@@ -53,9 +55,16 @@ class NewsCard extends Component {
 
 
     render() {
-        let { newsPosts, newsPostId } = this.props
-        
+        let { newsPosts, newsPostId, profiles, accountId } = this.props
         let { id, title, body, postDate, category, author, newsPostPhoto } = this.state
+        console.log('news card profiles', profiles)
+        console.log('news card author', author)
+
+        let authorProfileId = profiles.filter(function (e) {
+            console.log('e', e);
+            return e[1] == author;
+        })[0]
+        console.log('news card authorprofileid', authorProfileId)
       
         console.log('newsPost props', this.props)
         
@@ -80,7 +89,7 @@ class NewsCard extends Component {
             <Segment secondary className="postInfo">
             
            
-            <Label as='a'><Image avatar spaced='right' src='https://react.semantic-ui.com/images/avatar/small/elliot.jpg' />{author}</Label>
+            <Avatar profileId={authorProfileId?authorProfileId[0]:0} accountId={accountId} />{author}
 
           
             <Label as='a' tag color="blue" className="category"> Test Cat {category} </Label>
@@ -91,10 +100,6 @@ class NewsCard extends Component {
             <div dangerouslySetInnerHTML={{ __html: body}}>
             </div>
             </Segment>
-           
-            
-            <span className="badgeposition"><Image size='tiny' src={require('../../../../assets/vpguild-logo.png')} avatar />{newsPostId}</span>
-                <Image src={formatSrc} size='small' />
                 
             
             </div>

@@ -113,37 +113,26 @@ class NewsSubmitForm extends Component {
 
     async handleSubmit(e) {
         e.preventDefault();
-       await this.generateId();
-       await this.generateVerificationHash();
+        await this.generateId();
+        await this.generateVerificationHash();
+
+        let record = {
+            _id: this.state.newsPostId,
+            title: this.state.newsPostTitle,
+            body: this.state.newsPostBody,
+            category: this.state.newsPostCategory,
+            verificationHash: this.state.newsVerificationHash,
+            author: this.state.newsPostAuthor,
+            newsPostPhotos: this.state.newsPostPhotos,
+            postDate: this.state.newsPostDate,
+            published: this.state.published
+        }
+       
        await initiateCollection('NewsPost', newsPostSchema)
-       await createRecord('NewsPost', [
-                  {
-                    _id: this.state.newsPostId,
-                    title: this.state.newsPostTitle,
-                    body: this.state.newsPostBody,
-                    category: this.state.newsPostCategory,
-                    verificationHash: this.state.newsVerificationHash,
-                    author: this.state.newsPostAuthor,
-                    newsPostPhotos: this.state.newsPostPhotos,
-                    postDate: this.state.newsPostDate,
-                    published: this.state.published
-                  }
-            ]);
+       await createRecord('NewsPost', record)
         if(this.state.published) {
             await initiateAppCollection('NewsPost', newsPostSchema)
-            await createAppRecord('NewsPost', [
-                {
-                    _id: this.state.newsPostId,
-                    title: this.state.newsPostTitle,
-                    body: this.state.newsPostBody,
-                    category: this.state.newsPostCategory,
-                    verificationHash: this.state.newsVerificationHash,
-                    author: this.state.newsPostAuthor,
-                    newsPostPhotos: this.state.newsPostPhotos,
-                    postDate: this.state.newsPostDate,
-                    published: this.state.published
-                }
-            ]);
+            await createAppRecord('NewsPost', record)
         }
             this.props.handleChange({ name: 'newsPostId', value: this.state.newsPostId})
             this.props.handleChange({ name: 'newsVerificationHash', value: this.state.newsVerificationHash})

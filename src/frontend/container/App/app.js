@@ -70,6 +70,7 @@ class App extends Component {
             lastName: '',
             avatar: '',
             profileVerificationHash: '',
+            authorProfileId: '',
 
             // Consolidation Pages
             allNewsPosts: [],
@@ -114,11 +115,11 @@ class App extends Component {
     }
 
     async signedInFlow() {
-        const accountId = await this.props.wallet.getAccountId();
+        const accountId = await this.props.account.accountId;
         this.setState({
             accountId: accountId
         })
-
+        console.log('state accountId', this.state.accountId)
         // fill news posts array
         this.getAllNewsPostsByAllAuthors().then(res => {
             console.log('news res', res);
@@ -162,16 +163,27 @@ class App extends Component {
         })
 
         // fill members array
-        this.getAllMembers().then(res => {
+        this.getAllMembers().then(async res => {
             console.log('member res', res);
             this.setState({
                 members: res.members
             });
             let thisMember = this.state.members.filter((member) => member[1] === this.state.accountId)[0]
+        //    if(!thisMember) {
+               
+        //        await this.props.contract.addMissingMember({memberId: this.state.accountId}, process.env.DEFAULT_GAS_VALUE)
+        //        this.getAllMembers().then(res => {
+        //            console.log('new member res', res);
+        //            this.setState({
+        //                members: res.members
+        //            })
+        //        })
+         //   }
+         //   thisMember = this.state.members.filter((member) => member[1] === this.state.accountId)[0]
             this.setState({
                 thisMember: thisMember
             })
-            console.log('this member', thisMember)
+            console.log('this member', this.state.thisMember)
             if (res == null) {
                 this.setState({
                     loaded: true
@@ -188,11 +200,15 @@ class App extends Component {
 
         // fill profiles array
         this.getAllProfiles().then(res => {
-            console.log('profile res', res);
+            console.log('profile res', res.profiles);
+            console.log('is this state id', this.state.accountId)
+            let thisProfileId = res.profiles.filter((profile) => this.state.accountId==res.profiles[1])[0]
+            console.log('thisprofileid', thisProfileId)
             this.setState({
-                profiles: res.profiles
+                profiles: res.profiles,
+                profileId: thisProfileId
             });
-
+            console.log('state profileid', this.state.profileId)
             if (res == null) {
                 this.setState({
                     loaded: true
@@ -266,14 +282,15 @@ class App extends Component {
     }
 
     render() {
-        let { loggedIn, loaded, backDrop, back, accountId, user, role, roles,
+        let { loggedIn, loaded, backDrop, back, user, role, roles,
         newsPostId, newsPostAuthor, newsPostBody, newsPostCategory, newsPostTitle, newsPostPhotos, 
         newsVerificationHash, published, newsPostDate, newsPosts, members, thisMember,
-        profiles, profilePrivacy, profileId,
+        profiles, profilePrivacy, profileId, authorProfileId,
         firstName, lastName, avatar, profileVerificationHash,
         commentId, commentParent, commentPublished, commentVerificationHash, comments } = this.state
 
-        let { contract, account } = this.props
+        let { contract, account, near, wallet } = this.props
+        console.log('account', account)
        
         console.log('logged in', loggedIn)
         return (
@@ -283,7 +300,7 @@ class App extends Component {
                     loaded={loaded}
                     requestSignIn={this.requestSignIn}
                     requestSignOut={this.requestSignOut}
-                    accountId={accountId}
+                    accountId={account?account.accountId:account}
                     handleChange={this.handleChange} 
                     account={account}
                     thisMember={thisMember}
@@ -299,7 +316,9 @@ class App extends Component {
                             login={loggedIn}
                             loaded={loaded}
                             newsPosts={newsPosts}
-                            accountId={accountId}
+                            accountId={account?account.accountId:account}
+                            profiles={profiles}
+                            authorProfileId={authorProfileId}
                         />
                     }
                     />
@@ -312,7 +331,7 @@ class App extends Component {
                             login={loggedIn}
                             loaded={loaded}
                             newsPosts={newsPosts}
-                            accountId={accountId}
+                            accountId={account?account.accountId:account}
 
                         />
                     }
@@ -326,7 +345,7 @@ class App extends Component {
                             login={loggedIn}
                             loaded={loaded}
                             newsPosts={newsPosts}
-                            accountId={accountId}
+                            accountId={account?account.accountId:account}
 
                         />
                     }
@@ -339,7 +358,7 @@ class App extends Component {
                         <News
                             login={loggedIn}
                             loaded={loaded}
-                            accountId={accountId}
+                            accountId={account?account.accountId:account}
                             handleChange={this.handleChange}
                             handleDateChange={this.handleDateChange}
                             newsPostId={newsPostId}
@@ -350,6 +369,7 @@ class App extends Component {
                             newsPostPhotos={newsPostPhotos}
                             newsPostTitle={newsPostTitle}
                             newsVerificationHash={newsVerificationHash}
+                            
                         />
                     }
                     />
@@ -361,7 +381,7 @@ class App extends Component {
                         <EditProfile
                             login={loggedIn}
                             loaded={loaded}
-                            accountId={accountId}
+                            accountId={account?account.accountId:account}
                             handleChange={this.handleChange}
                             handleDateChange={this.handleDateChange}
                             profileId={profileId}
@@ -381,7 +401,7 @@ class App extends Component {
                         <Posting
                             login={loggedIn}
                             loaded={loaded}
-                            accountId={accountId}
+                            accountId={account?account.accountId:account}
                             handleChange={this.handleChange}
                             handleDateChange={this.handleDateChange}
                             contract={contract}
@@ -401,7 +421,7 @@ class App extends Component {
                         <Commenting
                             login={loggedIn}
                             loaded={loaded}
-                            accountId={accountId}
+                            accountId={account?account.accountId:account}
                             handleChange={this.handleChange}
                             handleDateChange={this.handleDateChange}
                             contract={contract}
@@ -421,7 +441,7 @@ class App extends Component {
                         <Profiling
                             login={loggedIn}
                             loaded={loaded}
-                            accountId={accountId}
+                            accountId={account?account.accountId:account}
                             handleChange={this.handleChange}
                             handleDateChange={this.handleDateChange}
                             contract={contract}
@@ -452,8 +472,12 @@ class App extends Component {
                                 backCancelHandler={this.backCancelHandler}
                                 handleChange={this.handleChange}
                                 handleDateChange={this.handleDateChange}
-                                accountId={accountId}
+                                accountId={account?account.accountId:account}
                                 comments={comments}
+                                profileId={profileId}
+                                thisMember={thisMember}
+                                profiles={profiles}
+                                authorProfileId={authorProfileId}
                             />
                         }
                     />
@@ -478,7 +502,7 @@ class App extends Component {
                                 backCancelHandler={this.backCancelHandler}
                                 handleChange={this.handleChange}
                                 handleDateChange={this.handleDateChange}
-                                accountId={accountId}
+                                accountId={account?account.accountId:account}
                                 members={members}
                             />
                         }
@@ -513,6 +537,8 @@ class App extends Component {
                             contract={contract}
                             roles={roles}
                             members={members}
+                            near={near}
+                            wallet={wallet}
                         />
                     }
                     />

@@ -3,6 +3,7 @@ import { Container, Segment, Header, Label, Image, Icon } from 'semantic-ui-reac
 import { deleteAppRecord, deleteRecord } from '../../../utils/ThreadDB'
 import CommentSubmitForm from '../../common/CommentSubmit/commentSubmit'
 import Comment from '../Comments/comment'
+import Avatar from '../../common/Avatar/avatar'
 
 import './fullNewsPost.css'
 
@@ -13,9 +14,24 @@ class FullNewsPost extends Component {
             running: false
         }
     }
+    
+   
+    componentDidMount() {
+        this.loadData()
+        .then((result) => {
+            
+           
+               
+            
+        })
+    }
 
-   
-   
+    async loadData() {
+       
+              
+            
+    }
+
     handleDelete = () => {
         let state = this.state.running
         this.setState({ running: !state })
@@ -44,7 +60,16 @@ class FullNewsPost extends Component {
 
     render() { 
 
-        let { newsPostDate, newsPostTitle, newsPostId, newsPostBody, author, category, comments, published, handleChange, handleDateChange } = this.props
+        let { newsPostDate, newsPostTitle, newsPostId, newsPostBody, author, category, comments, published, handleChange, handleDateChange, accountId, thisMember, profileId, profiles, 
+        } = this.props
+       
+        
+        let authorProfileId = profiles.filter(function (e) {
+            console.log('e', e);
+            return e[1] == author;
+        })[0]
+        console.log('full news authorprofileid', authorProfileId)
+        
 
         // Format post date as string with date and time for display
         let formatNewsPostDate
@@ -71,20 +96,22 @@ class FullNewsPost extends Component {
                console.log('comment3', comment[3])
                console.log('comment4', comment[4])
                console.log('newspostId', newsPostId)
-               if(comment[0]!='' && comment[1] == newsPostId && comment[4] === 'true') {
+               if((comment[0] !='' || comment.commentId !='') && (comment[1] == newsPostId || comment.commentParent == newsPostId) && (comment[4] === 'true' || comment.published === 'true')) {
                 return (
-                    <div>
-                    <Segment>
+                   
+                    <Segment key={comment[0]?comment[0]:comment.commentId}>
                         <Comment
-                            key={comment[0]}
-                            commentId={comment[0]}
+                            
+                            commentId={comment[0]?comment[0]:comment.commentId}
                             contract={contract}
                             comments={comments}
+                            commentAuthor={comment[2]?comment[2]:comment.author}
                             handleChange={handleChange}
                             accountId={accountId}
+                            profiles={profiles}
                         />
                     </Segment>
-                    </div>
+                
                     )
                }
             })
@@ -103,7 +130,7 @@ class FullNewsPost extends Component {
         <Segment secondary className="postInfo">
         
        
-        <Label as='a'><Image avatar spaced='right' src='https://react.semantic-ui.com/images/avatar/small/elliot.jpg' />{author}</Label>
+        <Avatar profileId={authorProfileId?authorProfileId[0]:0} accountId={accountId} />{author}
 
       
         <Label as='a' tag color="blue" className="category"> Test Cat {category} </Label>
@@ -115,11 +142,14 @@ class FullNewsPost extends Component {
         </div>
         </Segment>
         </div>
+        
         {Comments}
+        
         <Segment>
             <CommentSubmitForm 
                 handleChange={handleChange}
                 handleDateChange={handleDateChange}
+                accountId={accountId}
             />
         </Segment>
         </Container>

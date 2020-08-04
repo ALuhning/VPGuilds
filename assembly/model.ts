@@ -4,7 +4,7 @@ export class UserIdentity {
     account: string;
     identity: string; //libp2p string of key
     threadId: string;
-    memberId: u32;
+    memberId: string;
     status: string;
 }
 
@@ -13,7 +13,7 @@ export class AppIdentity {
     appId: string;
     identity: string; //libp2p string of key
     threadId: string;
-    appNumber: u32;
+    appNumber: string;
     status: string;
 }
 
@@ -136,5 +136,26 @@ export class ProfileMetaData {
 @nearBindgen
 export class ProfileArray {
     profiles: Array<string[]>;
+    len: i32;
+}
+
+// Likes Models
+@nearBindgen
+export class Like {
+    likeGiver: string; //always an account
+    likeReceiver: string; //can be anything - post, profile, comment
+    likeId: string;
+    likeValue: string;
+}
+
+@nearBindgen
+export class LikeMetaData {
+    likeData: Array<string>;
+    len: i32;
+}
+
+@nearBindgen
+export class LikeArray {
+    likes: Array<string[]>;
     len: i32;
 }

@@ -27,7 +27,7 @@ class NewsList extends Component {
     }
 
     render() {
-        let { newsPosts, login, loaded, handleChange, contract, accountId } = this.props
+        let { newsPosts, login, loaded, handleChange, contract, accountId, profiles } = this.props
         if (loaded === false) {
             return <div>Loading...</div>
         } else {
@@ -44,16 +44,17 @@ class NewsList extends Component {
         if (newsPosts.length > 0) {
             Posts = newsPosts.map(post => {
                console.log('news posts map', post)
-               if(post[0]!='' && post[3] === 'true') {
+               if((post[0]!='' || post.newsPostId !='') && (post[3] === 'true' || post.published=== 'true')) {
                 return (
                         
                         <NewsCard
-                            key={post[0]}
-                            newsPostId={post[0]}
+                            key={post[0]?post[0]:post.newsPostId}
+                            newsPostId={post[0]?post[0]:post.newsPostId}
                             contract={contract}
                             newsPosts={newsPosts}
                             handleChange={handleChange}
                             accountId={accountId}
+                            profiles={profiles}
                             />
                        
                     )

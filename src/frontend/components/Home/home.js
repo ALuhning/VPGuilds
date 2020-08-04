@@ -6,7 +6,7 @@ import NewsList from '../News/NewsList/newsList'
 import './home.css';
 class Home extends Component {
     render() {
-        let { login, loaded, newsPosts, accountId, userdb, appdb} = this.props
+        let { login, loaded, newsPosts, accountId, userdb, appdb, profiles} = this.props
         console.log('login', login)
         console.log('loaded', loaded)
         let page = '';
@@ -33,6 +33,7 @@ class Home extends Component {
                                 accountId={accountId}
                                 userdb={userdb}
                                 appdb={appdb}
+                                profiles={profiles}
                             />
                         </Grid.Column>
                         <Grid.Column width={4}>

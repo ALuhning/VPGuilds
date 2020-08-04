@@ -26,8 +26,8 @@ class Members extends Component {
     }
 
     async loadData() {
-        let memberList = await this.props.contract.listMembers();
-        console.log('existingAccounts', memberList)
+       // let memberList = await this.props.contract.listMembers();
+       // console.log('existingAccounts', memberList)
        
     }
 
@@ -85,7 +85,7 @@ class Members extends Component {
         } else {
 
 
-        let { members, login, load, handleChange, contract } = this.props
+        let { members, login, load, handleChange, contract, near, wallet } = this.props
         console.log('memberlist members ', members)
        // if (load && !login) {return <Redirect to="/" />}
         let Members = 'loading'
@@ -104,6 +104,8 @@ class Members extends Component {
                             contract={contract}
                             members={members}
                             handleChange={handleChange}
+                            near={near}
+                            wallet={wallet}
                             />
                     )
             })

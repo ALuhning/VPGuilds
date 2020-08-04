@@ -40,7 +40,7 @@ class SingleNewsPost extends Component {
                     author: result.author,
                     category: result.category,
                     body: result.body,
-                    published: result.published,
+                    published: result.published
                 })
             }
         })
@@ -76,7 +76,11 @@ class SingleNewsPost extends Component {
             contract,
             handleChange,
             handleDateChange,
-            comments
+            comments,
+            thisMember,
+            profileId,
+            profiles,
+            authorProfileId
         } = this.props
 
         let { id, title, body, postDate, category, author, published, newsPostPhoto } = this.state
@@ -101,6 +105,10 @@ class SingleNewsPost extends Component {
                         handleDateChange={handleDateChange}
                         comments={comments}
                         published={published}
+                        thisMember={thisMember}
+                        profileId={profileId}
+                        profiles={profiles}
+                        
                     />
                         
                     <Segment>

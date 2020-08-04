@@ -114,35 +114,25 @@ class CommentSubmitForm extends Component {
 
     async handleSubmit(e) {
         e.preventDefault();
-       await this.generateId();
-       await this.generateVerificationHash();
+        await this.generateId();
+        await this.generateVerificationHash();
+
+        let record = {
+            _id: this.state.commentId,
+            parent: this.state.commentParent,
+            subject: this.state.commentSubject,
+            body: this.state.commentBody,
+            verificationHash: this.state.commentVerificationHash,
+            author: this.state.commentAuthor,
+            postDate: this.state.commentDate,
+            published: this.state.commentPublished
+        }
+     
        await initiateCollection('Comment', commentSchema)
-       await createRecord('Comment', [
-                  {
-                    _id: this.state.commentId,
-                    parent: this.state.commentParent,
-                    subject: this.state.commentSubject,
-                    body: this.state.commentBody,
-                    verificationHash: this.state.commentVerificationHash,
-                    author: this.state.commentAuthor,
-                    postDate: this.state.commentDate,
-                    published: this.state.commentPublished
-                  }
-            ]);
+       await createRecord('Comment', record) 
         if(this.state.commentPublished) {
             await initiateAppCollection('Comment', commentSchema)
-            await createAppRecord('Comment', [
-                {
-                    _id: this.state.commentId,
-                    parent: this.state.commentParent,
-                    subject: this.state.commentSubject,
-                    body: this.state.commentBody,
-                    verificationHash: this.state.commentVerificationHash,
-                    author: this.state.commentAuthor,
-                    postDate: this.state.commentDate,
-                    published: this.state.commentPublished
-                }
-            ]);
+            await createAppRecord('Comment', record)
         }
             this.props.handleChange({ name: 'commentId', value: this.state.commentId})
             this.props.handleChange({ name: 'commentParent', value: this.state.commentParent})

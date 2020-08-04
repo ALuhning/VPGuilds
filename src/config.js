@@ -1,5 +1,6 @@
 const CONTRACT_NAME = process.env.CONTRACT_NAME;
 
+
 function getConfig(env) {
     switch (env) {
 
@@ -20,22 +21,6 @@ function getConfig(env) {
             contractName: CONTRACT_NAME,
             walletUrl: 'https://wallet.testnet.near.org',
             helperUrl: 'https://helper.testnet.near.org',
-        };
-    case 'devnet':
-        return {
-            networkId: 'devnet',
-            nodeUrl: 'https://rpc.devnet.near.org',
-            contractName: CONTRACT_NAME,
-            walletUrl: 'https://wallet.devnet.near.org',
-            helperUrl: 'https://helper.devnet.near.org',
-        };
-    case 'betanet':
-        return {
-            networkId: 'betanet',
-            nodeUrl: 'https://rpc.betanet.near.org',
-            contractName: CONTRACT_NAME,
-            walletUrl: 'https://wallet.betanet.near.org',
-            helperUrl: 'https://helper.betanet.near.org',
         };
     case 'local':
         return {
