@@ -4,15 +4,15 @@ const CONTRACT_NAME = process.env.CONTRACT_NAME;
 function getConfig(env) {
     switch (env) {
 
-    case 'production':
-    case 'mainnet':
-        return {
-            networkId: 'mainnet',
-            nodeUrl: 'https://rpc.mainnet.near.org',
-            contractName: CONTRACT_NAME,
-            walletUrl: 'https://wallet.mainnet.near.org',
-            helperUrl: 'https://helper.mainnet.near.org',
-        };
+  //  case 'production':
+  //  case 'mainnet':
+  //      return {
+  //          networkId: 'mainnet',
+  //          nodeUrl: 'https://rpc.mainnet.near.org',
+  //          contractName: CONTRACT_NAME,
+   //         walletUrl: 'https://wallet.mainnet.near.org',
+   //         helperUrl: 'https://helper.mainnet.near.org',
+   //     };
     case 'development':
     case 'testnet':
         return {
