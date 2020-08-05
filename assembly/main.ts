@@ -477,7 +477,9 @@ export function getAllNewsPosts(): NewsPostArray {
   for(let i: i32 = 0; i < newsPosts.length; i++) {
     let _newsPost = getNewsPostData(newsPosts[i]);
     logging.log(_newsPost)
+    if(_newsPost.length!=0){
     _newsPostList.push(_newsPost);
+    }
   }
   let nl = new NewsPostArray();
   nl.newsPosts = _newsPostList;
@@ -551,6 +553,8 @@ export function getSender(): string {
 
 export function deleteNewsPost(tokenId: string): void {
   indivNewsPosts.delete(tokenId);
+  newsPostMeta.delete(tokenId)
+  newsPostsByAuthor.delete(tokenId)
 }
 
 export function deleteNewsPostProfile(tokenId: string): Array<string> {
@@ -654,6 +658,8 @@ function _postNewsPost(
   logging.log('adding news post id to vector')
   _addNewNewsPost(post.newsPostId);
   logging.log("posted news post");
+  setNewsPost(post);
+  logging.log("posted indiv news post")
   return post;
 }
 
@@ -683,6 +689,10 @@ export function getCommentsByAuthor(author: string): Array<string> {
   }
   let id = commentId.commentData;
   return id;
+}
+
+export function setComment(comment: Comment): void {
+  indivComments.set(comment.commentId, comment);
 }
 
 export function setCommentByAuthor(comment: Comment): void {
@@ -780,6 +790,8 @@ function _addComment(
   logging.log('adding new comment to vector')
   _addNewComment(commentId);
   logging.log("added comment");
+  setComment(comment)
+  logging.log("added indiv comment")
   return comment;
 }
 

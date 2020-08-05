@@ -52,8 +52,9 @@ class UserPublishedNewsCard extends Component {
      }
     }
 
+
     render() {
-        let { newsPosts, newsPostId, profiles } = this.props
+        let { newsPosts, newsPostId, profiles, accountId } = this.props
         
         let { id, title, body, postDate, category, author, newsPostPhoto, published, loaded } = this.state
       
@@ -78,6 +79,7 @@ class UserPublishedNewsCard extends Component {
         if(loaded && published){
             info = ( 
                 <div className="post">
+             
                 <Header size='huge' as={Link} to={{pathname: "/@"+id}}>{title}</Header>
                 <Header.Subheader color='teal'>Posted: 12/20/2020 </Header.Subheader>
               

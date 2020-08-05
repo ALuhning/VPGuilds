@@ -24,6 +24,7 @@ import UserPublishedNewsList from '../../components/Account/PublishedPosts/userP
 import UserDraftNewsList from '../../components/Account/DraftPosts/userDraftNewsList'
 import Profile from '../../components/Account/Profile/profile'
 import EditProfile from '../../components/Account/Profile/editProfile'
+import Deleting from '../../components/News/Deleting/deleting'
 
 
 import './app.css';
@@ -129,6 +130,7 @@ class App extends Component {
 
             if (res == null ) {
                 this.setState({
+                    newsPosts: res.newsPosts,
                     loaded: true
                 });
             } else {
@@ -246,7 +248,8 @@ class App extends Component {
 
     async requestSignIn() {
         await this.props.wallet.requestSignIn(
-            process.env.CONTRACT_NAME,
+       //     process.env.CONTRACT_NAME,
+       '',
             process.env.APP_TITLE
         )
     }
@@ -312,13 +315,32 @@ class App extends Component {
                     exact
                     path='/'
                     render={() => 
-                        <Home
+                        <Home 
+                           
                             login={loggedIn}
                             loaded={loaded}
                             newsPosts={newsPosts}
                             accountId={account?account.accountId:account}
                             profiles={profiles}
                             authorProfileId={authorProfileId}
+
+                           
+                                contract={contract}
+                               
+                                newsPostTitle={newsPostTitle}
+                                newsPostId={newsPostId}
+                                backDrop={backDrop}
+                                back={back}
+                                backdropCancelHandler={this.backdropCancelHandler}
+                                backShowHandler={this.backShowHandler}
+                                backCancelHandler={this.backCancelHandler}
+                                handleChange={this.handleChange}
+                                handleDateChange={this.handleDateChange}
+                                
+                                comments={comments}
+                                profileId={profileId}
+                                thisMember={thisMember}
+                               
                         />
                     }
                     />
@@ -418,6 +440,27 @@ class App extends Component {
 
                     <Route
                     exact
+                    path='/deleting'
+                    render={() => 
+                        <Deleting
+                            login={loggedIn}
+                            loaded={loaded}
+                            accountId={account?account.accountId:account}
+                            handleChange={this.handleChange}
+                            handleDateChange={this.handleDateChange}
+                            contract={contract}
+                            newsPostId={newsPostId}
+                            newsPostTitle={newsPostTitle}
+                            newsVerificationHash={newsVerificationHash}
+                            published={published}
+                            newsPosts={newsPosts}
+                            history={history}
+                        />
+                    }
+                    />
+
+                    <Route
+                    exact
                     path='/commenting'
                     render={() => 
                         <Commenting
@@ -480,6 +523,7 @@ class App extends Component {
                                 thisMember={thisMember}
                                 profiles={profiles}
                                 authorProfileId={authorProfileId}
+                                history={history}
                             />
                         }
                     />

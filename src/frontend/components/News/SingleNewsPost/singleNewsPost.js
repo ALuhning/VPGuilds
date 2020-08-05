@@ -111,7 +111,7 @@ class SingleNewsPost extends Component {
                         
                     />
                         
-                    <Segment>
+                   {published? <Segment>
                         <Share
                             newsPostTitle={title}
                             newsPostDate={postDate}
@@ -121,6 +121,7 @@ class SingleNewsPost extends Component {
                         />
                         <SendAndShare backShowHandler={backShowHandler} />
                     </Segment>
+                    :''}
                 
             </Container>
         )

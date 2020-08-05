@@ -44,7 +44,7 @@ class UserPublishedNewsList extends Component {
                console.log('accountId', accountId)
                console.log('post[1]', post[1])
                console.log('newsposts', newsPosts)
-               if(post[0]!=='' && post[1] === accountId && post[3]=== 'true') {
+               if((post[0]!=='' || post.newsPostId !=='') && (post[1] === accountId || post.newsPostAuthor === accountId) && (post[3]=== 'true' || post.published ==='true')) {
                 return (
                         
                         <UserPublishedNewsCard
@@ -54,6 +54,7 @@ class UserPublishedNewsList extends Component {
                             newsPosts={newsPosts}
                             handleChange={handleChange}
                             profiles={profiles}
+                            accountId={accountId}
                             />
                        
                     )

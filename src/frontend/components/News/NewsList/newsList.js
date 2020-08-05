@@ -9,39 +9,44 @@ class NewsList extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            loaded: false,
-            running: true
+            running: true,
+            loaded: false
+           
         };
     }
 
     componentDidMount() {
-        this.loadData().then(() => {
-            this.setState({loaded:true})
+        this.loadData().then((res) => {
+            console.log('newslist res', res)
+            this.props.handleChange({ name: "newsPosts", value: res.newsPosts})
+            this.setState({
+                loaded: true
+            })
+            
         })
     }
 
     async loadData() {
-        let newsPostList = await this.props.contract.getAllNewsPosts();
-        console.log('existing news posts', newsPostList)
-       
+        return this.props.contract.getAllNewsPosts();
     }
 
     render() {
-        let { newsPosts, login, loaded, handleChange, contract, accountId, profiles } = this.props
+        let { newsPosts, login, handleChange, contract, accountId, profiles } = this.props
+        let { loaded } = this.state
+       
         if (loaded === false) {
             return <div>Loading...</div>
         } else {
 
-
-       
         console.log('newsposts list members ', newsPosts)
-        if (loaded && !login) {return <Redirect to="/" />}
-        let Posts = 'loading'
-        if (newsPosts && newsPosts.length === 0) { 
+        if (loaded && !login ) {return <Redirect to="/" />}
+        let Posts;
+        
+        if (loaded && (!newsPosts || newsPosts.length === 0)) { 
             Posts = 'no news yet'
         }
 
-        if (newsPosts.length > 0) {
+        if (loaded && newsPosts.length > 0) {
             Posts = newsPosts.map(post => {
                console.log('news posts map', post)
                if((post[0]!='' || post.newsPostId !='') && (post[3] === 'true' || post.published=== 'true')) {

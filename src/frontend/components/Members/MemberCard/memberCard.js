@@ -101,9 +101,10 @@ class MemberCard extends Component {
     async sendMoney(to) {
        
         
-        await window.walletConnection.requestSignTransactions([nearlib.transactions.transfer], 'localhost')
+      //  await window.walletConnection.requestSignTransactions([nearlib.transactions.transfer], 'localhost')
        let sender = await near.account(window.walletConnection.getAccountId())
-       let final = await sender.sendMoney(to, 1)
+       let final = await sender.sendMoney(to, 1000)
+       console.log('final', final)
         return final
     }
 

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Container, Segment, Header, Label, Image, Icon } from 'semantic-ui-react';
+import { Redirect, withRouter } from 'react-router-dom';
+import { Container, Segment, Header, Label, Image, Icon, Form, Button } from 'semantic-ui-react';
 import { deleteAppRecord, deleteRecord } from '../../../utils/ThreadDB'
 import CommentSubmitForm from '../../common/CommentSubmit/commentSubmit'
 import Comment from '../Comments/comment'
@@ -11,7 +12,9 @@ class FullNewsPost extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            running: false
+            loaded: false,
+            running: false,
+            deleted: false
         }
     }
     
@@ -19,51 +22,76 @@ class FullNewsPost extends Component {
     componentDidMount() {
         this.loadData()
         .then((result) => {
-            
-           
-               
-            
+            this.setState({
+                loaded: true
+            })
         })
     }
 
     async loadData() {
-       
-              
-            
     }
 
-    handleDelete = () => {
-        let state = this.state.running
-        this.setState({ running: !state })
+    componentWillUnmount() {}
+
+    handleDeleteStart = () => {
+        let stateRunning = this.state.running
+        this.setState({ 
+            running: !stateRunning
+        })
     }
 
-    deleteNewsPost = () => {
+    handleDeleteFinish = () => {
+        let stateRunning = this.state.running
+        this.setState({ 
+            running: !stateRunning,
+            deleted: true
+        })
+    }
+
+    deleteNewsPost = async () => {
         let { contract, handleChange, accountId, author, history } = this.props
         let newsPostId = history.location.pathname.slice(2)
-        this.handleDelete()
+        this.handleDeleteStart()
         if (author === accountId) {
-        deleteAppRecord(newsPostId, 'NewsPost')
-        deleteRecord(newsPostId, 'NewsPost')
-        contract.deleteNewsPostProfile({
+        await deleteAppRecord(newsPostId, 'NewsPost')
+        await deleteRecord(newsPostId, 'NewsPost')
+        await contract.deleteNewsPostProfile({
             tokenId: newsPostId
-        }, process.env.DEFAULT_GAS_VALUE).then(response => {
-            console.log("[profile.js] posts", response.len)
+        }, process.env.DEFAULT_GAS_VALUE).then(async (response) => {
+            console.log("[profile.js] posts", response.length)
             console.log('response', response)
-            let newPosts = response.newsPosts
-            handleChange({ name: "newsPosts", value: newPosts })
-            this.handleDelete()
+            let result = await contract.getAllNewsPosts();
+            if (result.length != 0) {
+                handleChange({ name: "newsPosts", value: result })
+            }
+            this.handleDeleteFinish()
         }).catch(err => {
             console.log(err);
         })
         }
     }
 
+    async handlePostDeletion(e) {
+        e.preventDefault();
+       console.log('e hre', e)
+       console.log('handle post deletion props', this.props)
+       
+       let newsPostId = this.props.history.location.pathname.slice(2)
+      
+       
+            this.props.handleChange({ name: 'newsPostId', value: newsPostId})
+            console.log("delete newspostid" , this.state.newsPostId)
+           
+            this.props.history.push("/deleting")
+    }
+
     render() { 
 
-        let { newsPostDate, newsPostTitle, newsPostId, newsPostBody, author, category, comments, published, handleChange, handleDateChange, accountId, thisMember, profileId, profiles, 
-        } = this.props
-       
         
+        let { newsPostDate, newsPostTitle, newsPostId, newsPostBody, author, category, comments, published, handleChange, handleDateChange, accountId, thisMember, profileId, profiles, 
+        history} = this.props
+       console.log('fullnewspost props', this.props)
+
         let authorProfileId = profiles.filter(function (e) {
             console.log('e', e);
             return e[1] == author;
@@ -117,12 +145,15 @@ class FullNewsPost extends Component {
             })
         }  
         } else {
-            Comments = '<div></div>'
+            Comments = <div></div>
         }  
     return (
         <Container className="main">
         <div className="post">
-        {author===accountId ?<Icon name='delete' onClick={this.deleteNewsPost} className="deleteicon" /> : ''}
+        {author===accountId ?  <Form onSubmit={(e) => this.handlePostDeletion(e)}> <Form.Button
+        className="submitButton"
+        content='Delete'
+    /></Form> : ''}
        
         <Header size='huge'>{newsPostTitle}</Header>
         <Header.Subheader color='teal'>{formatNewsPostDate} </Header.Subheader>
@@ -145,16 +176,17 @@ class FullNewsPost extends Component {
         
         {Comments}
         
-        <Segment>
+       {published ? <Segment>
             <CommentSubmitForm 
                 handleChange={handleChange}
                 handleDateChange={handleDateChange}
                 accountId={accountId}
             />
         </Segment>
+        : ''}
         </Container>
     )
     }
 }
 
-export default FullNewsPost
+export default withRouter(FullNewsPost)

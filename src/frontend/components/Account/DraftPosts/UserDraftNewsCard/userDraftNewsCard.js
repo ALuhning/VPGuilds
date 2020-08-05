@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Image, Icon, Loader, Dimmer, Segment, Header, Divider, Label, Grid } from 'semantic-ui-react'
 import { retrieveRecord, deleteRecord } from '../../../../utils/ThreadDB'
+import Avatar from '../../../common/Avatar/avatar'
 
 import './userDraftNewsCard.css'
 
@@ -52,13 +53,18 @@ class UserDraftNewsCard extends Component {
      }
     }
 
+
     render() {
-        let { newsPosts, newsPostId } = this.props
+        let { newsPosts, newsPostId, profiles, accountId } = this.props
         
         let { id, title, body, postDate, category, author, newsPostPhoto, published, loaded } = this.state
       
         console.log('user published news card state', this.state)
-        
+        let authorProfileId = profiles.filter(function (e) {
+            console.log('e', e);
+            return e[1] == author;
+        })[0]
+        console.log('news card authorprofileid', authorProfileId)
        
         // Format jump date as string with date and time for display
         if(postDate) {
@@ -75,13 +81,14 @@ class UserDraftNewsCard extends Component {
         if(loaded && !published){
             info = ( 
                 <div className="post">
+              
                 <Header size='huge' as={Link} to={{pathname: "/@"+id}}>{title}</Header>
                 <Header.Subheader color='teal'>Posted: 12/20/2020 </Header.Subheader>
               
                 <Segment secondary className="postInfo">
                 
                
-                <Label as='a'><Image avatar spaced='right' src='https://react.semantic-ui.com/images/avatar/small/elliot.jpg' />{author}</Label>
+                <Avatar profileId={authorProfileId?authorProfileId[0]:0} accountId={accountId} />{author}
     
               
                 <Label as='a' tag color="blue" className="category"> Test Cat {category} </Label>
@@ -92,10 +99,7 @@ class UserDraftNewsCard extends Component {
                 <div dangerouslySetInnerHTML={{ __html: body}}>
                 </div>
                 </Segment>
-               
-                
-                <span className="badgeposition"><Image size='tiny' src={require('../../../../../assets/vpguild-logo.png')} avatar />{newsPostId}</span>
-                    <Image src={formatSrc} size='small' />
+            
                     
                 
                 </div>

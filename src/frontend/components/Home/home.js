@@ -5,8 +5,31 @@ import NewsList from '../News/NewsList/newsList'
 
 import './home.css';
 class Home extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            loaded: false,
+            running: true,           
+        };
+    }
+
+    componentDidMount() {
+        this.loadData().then(() => {
+            console.log('loaded in mount', this.state.loaded)
+            this.setState({
+                loaded:true
+            })
+            
+        })
+    }
+
+    async loadData() {
+        
+    }
+
     render() {
-        let { login, loaded, newsPosts, accountId, userdb, appdb, profiles} = this.props
+        let { login, newsPosts, accountId, userdb, appdb, profiles, handleChange} = this.props
+        let { loaded } = this.state
         console.log('login', login)
         console.log('loaded', loaded)
         let page = '';
@@ -34,6 +57,7 @@ class Home extends Component {
                                 userdb={userdb}
                                 appdb={appdb}
                                 profiles={profiles}
+                                handleChange={handleChange}
                             />
                         </Grid.Column>
                         <Grid.Column width={4}>
@@ -45,7 +69,7 @@ class Home extends Component {
         }
         return (
             <Container className="main">
-                {page}            
+               {page}            
             </Container>
         )
     }

@@ -45,10 +45,10 @@ class Posting extends Component {
     }
         
     render() {
-        let { newsPostTitle, login, loaded, newsPostId } = this.props
+        let { newsPostTitle, login, loaded, newsPostId, history } = this.props
        
         if (loaded && !login) {return <Redirect to="/" />}
-        if (!this.state.running) { return <Redirect to={{ pathname: "/@" + newsPostId }} /> }
+        if (!this.state.running) { return <Redirect to={{ pathname: "/@" + newsPostId }} history={history}/> }
        // if (!this.state.running) { return <Redirect to="/" /> }
         return (
                 
