@@ -69,22 +69,24 @@ class NewsCard extends Component {
         console.log('newsPost props', this.props)
         
        
-        // Format jump date as string with date and time for display
-        if(postDate) {
-        let intDate = parseInt(postDate)
-        let formatNewsPostDate = new Date(intDate).toLocaleString()
-        console.log("formatted post date", formatNewsPostDate)
-        } else {
-           let formatNewsPostDate = '12/12/2020'
-        }
-        let formatSrc = newsPostPhoto
+         // Format post date as string with date and time for display
+         let formatNewsPostDate
+         console.log('card news post date', postDate)
+         if(postDate) {
+             let intDate = parseInt(postDate)
+             formatNewsPostDate = new Date(intDate).toLocaleString()
+             console.log("formatted post date", formatNewsPostDate)
+         } else {
+             formatNewsPostDate = 'undefined'
+         }
+
 
         let info;
        if (this.state.loaded) {
            info = ( 
             <div className="post">
             <Header size='huge' as={Link} to={{pathname: "/@"+id}}>{title}</Header>
-            <Header.Subheader color='teal'>Posted: 12/20/2020 </Header.Subheader>
+            <Header.Subheader color='teal'>Posted: {formatNewsPostDate} </Header.Subheader>
           
             <Segment secondary className="postInfo">
             

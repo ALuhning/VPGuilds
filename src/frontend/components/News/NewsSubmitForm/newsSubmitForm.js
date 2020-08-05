@@ -57,7 +57,9 @@ class NewsSubmitForm extends Component {
         this.setState({ 
             newsPostDate: event
         })
+        console.log('nespostdatebefore', this.state.newsPostDate)
         this.props.handleDateChange({ name: "newsPostDate", value: event });
+        console.log('newspostdate', this.state.newsPostDate)
     }
 
 
@@ -124,10 +126,10 @@ class NewsSubmitForm extends Component {
             verificationHash: this.state.newsVerificationHash,
             author: this.state.newsPostAuthor,
             newsPostPhotos: this.state.newsPostPhotos,
-            postDate: this.state.newsPostDate,
+            postDate: new Date(this.state.newsPostDate).getTime(),
             published: this.state.published
         }
-       
+       console.log('date to store', new Date(this.state.newsPostDate).getTime())
        await initiateCollection('NewsPost', newsPostSchema)
        await createRecord('NewsPost', record)
         if(this.state.published) {

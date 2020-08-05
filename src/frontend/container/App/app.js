@@ -585,6 +585,7 @@ class App extends Component {
                             members={members}
                             near={near}
                             wallet={wallet}
+                            account={account}
                         />
                     }
                     />

@@ -38,6 +38,7 @@ class HeaderNav extends Component {
         })
     }
 
+    
     async loadData() {
     
     }
@@ -50,7 +51,7 @@ class HeaderNav extends Component {
         this.setState({
             balance: formattedBalance
         })
-        console.log('Balance: ', this.state.balance)
+       this.props.handleChange({ name: 'balance', value: formattedBalance})
     }
 
    render() {

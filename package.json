@@ -37,6 +37,7 @@
     "@textile/threads": "^0.3.5",
     "@textile/threads-core": "^0.1.33",
     "big.js": "^5.2.2",
+    "bn.js": "^5.1.2",
     "bs58": "^4.0.1",
     "crypto": "^1.0.1",
     "keccak256": "^1.0.0",

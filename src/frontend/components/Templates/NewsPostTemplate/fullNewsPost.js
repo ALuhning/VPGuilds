@@ -33,44 +33,6 @@ class FullNewsPost extends Component {
 
     componentWillUnmount() {}
 
-    handleDeleteStart = () => {
-        let stateRunning = this.state.running
-        this.setState({ 
-            running: !stateRunning
-        })
-    }
-
-    handleDeleteFinish = () => {
-        let stateRunning = this.state.running
-        this.setState({ 
-            running: !stateRunning,
-            deleted: true
-        })
-    }
-
-    deleteNewsPost = async () => {
-        let { contract, handleChange, accountId, author, history } = this.props
-        let newsPostId = history.location.pathname.slice(2)
-        this.handleDeleteStart()
-        if (author === accountId) {
-        await deleteAppRecord(newsPostId, 'NewsPost')
-        await deleteRecord(newsPostId, 'NewsPost')
-        await contract.deleteNewsPostProfile({
-            tokenId: newsPostId
-        }, process.env.DEFAULT_GAS_VALUE).then(async (response) => {
-            console.log("[profile.js] posts", response.length)
-            console.log('response', response)
-            let result = await contract.getAllNewsPosts();
-            if (result.length != 0) {
-                handleChange({ name: "newsPosts", value: result })
-            }
-            this.handleDeleteFinish()
-        }).catch(err => {
-            console.log(err);
-        })
-        }
-    }
-
     async handlePostDeletion(e) {
         e.preventDefault();
        console.log('e hre', e)
@@ -101,6 +63,7 @@ class FullNewsPost extends Component {
 
         // Format post date as string with date and time for display
         let formatNewsPostDate
+        console.log('fullnews post date', newsPostDate)
         if(newsPostDate) {
             let intDate = parseInt(newsPostDate)
             formatNewsPostDate = new Date(intDate).toLocaleString()
@@ -161,7 +124,7 @@ class FullNewsPost extends Component {
         <Segment secondary className="postInfo">
         
        
-        <Avatar profileId={authorProfileId?authorProfileId[0]:0} accountId={accountId} />{author}
+        <Avatar profileId={authorProfileId?authorProfileId[0]:0} accountId={accountId} /> {author}
 
       
         <Label as='a' tag color="blue" className="category"> Test Cat {category} </Label>

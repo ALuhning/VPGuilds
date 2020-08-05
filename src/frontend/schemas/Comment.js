@@ -24,7 +24,7 @@ export const commentSchema = {
         type: 'string',
       },
       postDate: {
-        type: 'integer',
+        type: 'number',
         minimum: 0,
       },
       published: {

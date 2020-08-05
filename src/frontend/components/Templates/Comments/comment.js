@@ -89,18 +89,23 @@ class Comment extends Component {
         let commentMember = comments.filter((comment) => ((comment[2] == commentAuthor) || comment.commentAuthor == commentAuthor))[0]
         console.log('commenter', commentMember)
 
-        let authorProfileId = profiles.filter((profile) => commentAuthor==profiles[0][1])[0]
+        let authorProfileId = profiles.filter(function (e) {
+            console.log('e', e);
+            return e[1] == commentAuthor;
+        })[0]
         console.log('comment authorprofileid', authorProfileId)
 
-        // Format jump date as string with date and time for display
-        let formatCommentDate;
-        if(commentDate) {
-        let intDate = parseInt(commentDate)
-        let formatCommentDate = new Date(intDate).toLocaleString()
-        console.log("formatted comment date", formatCommentDate)
-        } else {
-           let formatCommentDate = '12/12/2020'
-        }
+
+          // Format post date as string with date and time for display
+          let formatCommentDate
+          console.log('comment post date', commentDate)
+          if(commentDate) {
+              let intDate = parseInt(commentDate)
+              formatCommentDate = new Date(intDate).toLocaleString()
+              console.log("formatted comment date", formatCommentDate)
+          } else {
+              formatCommentDate = 'undefined'
+          }
       
        
             let comment = this.state.loaded 
@@ -110,7 +115,7 @@ class Comment extends Component {
                     <Header.Subheader color='teal'>Posted: {formatCommentDate}</Header.Subheader>
                 
                     <Segment secondary className="commentInfo">
-                        <Avatar profileId={authorProfileId?authorProfileId[0]:0} accountId={commentAuthor}/>
+                        <Avatar profileId={authorProfileId?authorProfileId[0]:0} accountId={commentAuthor}/> {commentAuthor}
                         <Label as='a' tag color="blue" className="category"> Test Cat </Label>
                     </Segment>
                     <Segment basic>

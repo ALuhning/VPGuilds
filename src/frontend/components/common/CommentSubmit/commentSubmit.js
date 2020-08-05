@@ -124,7 +124,7 @@ class CommentSubmitForm extends Component {
             body: this.state.commentBody,
             verificationHash: this.state.commentVerificationHash,
             author: this.state.commentAuthor,
-            postDate: this.state.commentDate,
+            postDate: new Date(this.state.commentDate).getTime(),
             published: this.state.commentPublished
         }
      

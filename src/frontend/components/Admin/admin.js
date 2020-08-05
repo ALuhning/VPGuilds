@@ -104,13 +104,13 @@ class Admin extends Component {
                     <Form.Group inline>
                     <label>Role</label>
                         <Form.Radio
-                            label='Coach'
+                            label='Member'
                             value='coach'
                             checked={role === 'coach'}
                             onChange={this.handleRoleChange}
                         />
                         <Form.Radio
-                            label='Association'
+                            label='Moderator'
                             value='association'
                             checked={role === 'association'}
                             onChange={this.handleRoleChange}

@@ -85,7 +85,7 @@ class Members extends Component {
         } else {
 
 
-        let { members, login, load, handleChange, contract, near, wallet } = this.props
+        let { members, login, load, handleChange, contract, near, wallet, account } = this.props
         console.log('memberlist members ', members)
        // if (load && !login) {return <Redirect to="/" />}
         let Members = 'loading'
@@ -106,6 +106,7 @@ class Members extends Component {
                             handleChange={handleChange}
                             near={near}
                             wallet={wallet}
+                            account={account}
                             />
                     )
             })

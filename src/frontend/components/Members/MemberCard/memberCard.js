@@ -4,7 +4,7 @@ import { Card, Image, Icon, Loader, Dimmer, Grid, Button } from 'semantic-ui-rea
 import Avatar from '../../../components/common/Avatar/avatar'
 import { retrieveRecord, deleteRecord, initiateCollection } from '../../../utils/ThreadDB'
 import * as nearlib from "near-api-js";
-
+const BN = require('bn.js')
 
 import './memberCard.css'
 import { parseEncryptionKeyNear } from '../../../utils/Encryption';
@@ -99,12 +99,10 @@ class MemberCard extends Component {
     }
 
     async sendMoney(to) {
-       
-        
-      //  await window.walletConnection.requestSignTransactions([nearlib.transactions.transfer], 'localhost')
+       let amount_to_send = nearlib.utils.format.parseNearAmount('1')
        let sender = await near.account(window.walletConnection.getAccountId())
-       let final = await sender.sendMoney(to, 1000)
-       console.log('final', final)
+       let final = await sender.sendMoney(to, amount_to_send)
+       console.log('final', final)        
         return final
     }
 
